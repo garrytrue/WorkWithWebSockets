@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Key for prefences-->
+    <string name="pref_key_server_address">pref_key_server_address</string>
+    <!-- Key for bundle-->
+    <string name="bundle_key_current_fragment_tag">bundle_key_current_fragment_tag</string>
+    <string name="bundle_key_inet_address">bundle_key_inet_address</string>
+    <string name="bundle_key_image_uri">bundle_key_image_uri</string>
+    <string name="bundle_key_msg_data">bundle_key_msg_data</string>
+    <!-- Names for fragments-->
+    <string name="fragment_select_work_mode_tag">fragment_select_work_mode_tag</string>
+    <string name="fragment_client_mode_tag">fragment_client_mode_tag</string>
+    <string name="fragment_server_mode_tag">fragment_server_mode_tag</string>
+</resources>
