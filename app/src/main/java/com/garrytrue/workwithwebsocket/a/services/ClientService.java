@@ -9,12 +9,13 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.garrytrue.workwithwebsocket.R;
+import com.garrytrue.workwithwebsocket.a.events.EventConnectionClosed;
+import com.garrytrue.workwithwebsocket.a.events.EventConnectionError;
 import com.garrytrue.workwithwebsocket.a.events.EventConnectionOpen;
+import com.garrytrue.workwithwebsocket.a.events.EventProblemParsURI;
 import com.garrytrue.workwithwebsocket.a.interfaces.WebSocketCallback;
 import com.garrytrue.workwithwebsocket.a.utils.Constants;
 import com.garrytrue.workwithwebsocket.a.websockets.AppWebSocketClient;
-
-import org.java_websocket.client.WebSocketClient;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -32,7 +33,7 @@ public class ClientService extends Service {
     private static final String TAG = "ClientService";
     private Uri mImageUri;
     private String mPass;
-    private WebSocketClient mClient;
+    private AppWebSocketClient mClient;
 
     private WebSocketCallback mCallback = new WebSocketCallback() {
         @Override
@@ -43,18 +44,17 @@ public class ClientService extends Service {
         public void gotOpenConnection() {
             Log.d(TAG, "gotOpenConnection: Connection is OPEN");
             EventBus.getDefault().post(new EventConnectionOpen());
-            Thread thread = new Thread(messageSender);
-            thread.start();
+            messageSender.run();
         }
 
         @Override
         public void gotCloseConnection(String reason) {
-
+            EventBus.getDefault().post(new EventConnectionClosed(reason));
         }
 
         @Override
         public void gotError(Exception ex) {
-
+            EventBus.getDefault().post(new EventConnectionError(ex.getMessage()));
         }
     };
     private Runnable messageSender = new Runnable() {
@@ -84,12 +84,16 @@ public class ClientService extends Service {
                     mImageUri = Uri.parse(bundle.getString(getString(R.string
                             .bundle_key_msg_data)));
                     mPass = bundle.getString(getString(R.string.bundle_key_msg_pass));
-                    try {
-                        initWebSocketClient(intent.getStringExtra(getString(R.string.bundle_key_inet_address)));
-                    } catch (URISyntaxException e) {
-                        Log.e(TAG, "onStartCommand: ", e);
-                        // TODO: 11.11.15 Notify UI about problem with server address
-//                        EventBus.getDefault().
+                    if (mClient != null && mClient.isSocketOpen()) {
+                        messageSender.run();
+                    } else {
+                        try {
+                            initWebSocketClient(intent.getStringExtra(getString(R.string.bundle_key_inet_address)));
+                        } catch (URISyntaxException e) {
+                            Log.e(TAG, "onStartCommand: ", e);
+                            // TODO: 11.11.15 Notify UI about problem with server address
+                            EventBus.getDefault().post(new EventProblemParsURI());
+                        }
                     }
                 }
                 break;

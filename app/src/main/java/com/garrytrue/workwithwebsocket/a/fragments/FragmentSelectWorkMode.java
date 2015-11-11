@@ -27,9 +27,7 @@ public class FragmentSelectWorkMode extends Fragment {
     private IBtnClickListener mClickListener;
 
     public static FragmentSelectWorkMode newInstance() {
-
         Bundle args = new Bundle();
-
         FragmentSelectWorkMode fragment = new FragmentSelectWorkMode();
         fragment.setArguments(args);
         return fragment;

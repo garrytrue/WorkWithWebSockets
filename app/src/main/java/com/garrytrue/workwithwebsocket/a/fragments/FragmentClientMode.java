@@ -15,9 +15,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.garrytrue.workwithwebsocket.R;
+import com.garrytrue.workwithwebsocket.a.events.EventConnectionClosed;
+import com.garrytrue.workwithwebsocket.a.events.EventConnectionError;
 import com.garrytrue.workwithwebsocket.a.events.EventConnectionOpen;
+import com.garrytrue.workwithwebsocket.a.events.EventProblemParsURI;
 import com.garrytrue.workwithwebsocket.a.interfaces.OnTaskCompliteListener;
 import com.garrytrue.workwithwebsocket.a.preference.PreferencesManager;
 import com.garrytrue.workwithwebsocket.a.services.ClientService;
@@ -33,7 +37,6 @@ import de.greenrobot.event.EventBus;
  */
 public class FragmentClientMode extends Fragment {
     private ImageView mImageView;
-    private Button mBtnSelectImage, mBtnSendImage;
     private ProgressBar mImageProgress;
     public static final int SELECT_IMAGE_FROM_GALLERY = 9;
     private static final String TAG = "FragmentClientMode";
@@ -111,6 +114,20 @@ public class FragmentClientMode extends Fragment {
         initUI(v);
     }
 
+    private void initUI(View v) {
+        mImageView = (ImageView) v.findViewById(R.id.imageView);
+       Button btnSelectImage = (Button) v.findViewById(R.id.btn_select_image);
+        btnSelectImage.setOnClickListener(mSelectImageClickListener);
+        Button btnSendImage = (Button) v.findViewById(R.id.btn_send_image);
+        btnSendImage.setOnClickListener(mSendImageClickListener);
+        mImageProgress = (ProgressBar) v.findViewById(R.id.pb_image_progress);
+        mEditTextPass = (EditText) v.findViewById(R.id.editText);
+        TextView tvServerAddress = (TextView) v.findViewById(R.id.tvServerAdr);
+        tvServerAddress.setText(String.format(getString(R.string.server_address_w_format),new PreferencesManager
+                (getActivity()).getServerAddress()));
+        loadImageFromUri(mImageUri);
+    }
+
     @Override
     public void onStart() {
         super.onStart();
@@ -141,16 +158,6 @@ public class FragmentClientMode extends Fragment {
         super.onSaveInstanceState(outState);
     }
 
-    private void initUI(View v) {
-        mImageView = (ImageView) v.findViewById(R.id.imageView);
-        mBtnSelectImage = (Button) v.findViewById(R.id.btn_select_image);
-        mBtnSelectImage.setOnClickListener(mSelectImageClickListener);
-        mBtnSendImage = (Button) v.findViewById(R.id.btn_send_image);
-        mBtnSendImage.setOnClickListener(mSendImageClickListener);
-        mImageProgress = (ProgressBar) v.findViewById(R.id.pb_image_progress);
-        mEditTextPass = (EditText) v.findViewById(R.id.editText);
-        loadImageFromUri(mImageUri);
-    }
 
     private boolean isPasswordValid() {
         String pass = mEditTextPass.getText().toString();
@@ -211,6 +218,15 @@ public class FragmentClientMode extends Fragment {
 
     public void onEventMainThread(EventConnectionOpen event) {
         Utils.showToast(getActivity(), getString(R.string.msg_connection_is_open));
+    }
+    public void onEventMainThread(EventProblemParsURI event) {
+        Utils.showToast(getActivity(), getString(R.string.msg_wrong_uri));
+    }
+    public void onEventMainThread(EventConnectionClosed event) {
+        Utils.showToast(getActivity(), event.getReason());
+    }
+    public void onEventMainThread(EventConnectionError event) {
+        Utils.showToast(getActivity(), event.getMessage());
     }
 
 

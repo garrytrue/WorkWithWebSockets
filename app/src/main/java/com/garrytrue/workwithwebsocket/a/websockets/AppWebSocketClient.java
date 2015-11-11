@@ -49,4 +49,7 @@ public class AppWebSocketClient extends WebSocketClient {
         if (mCallback != null)
             mCallback.get().gotError(ex);
     }
+    public boolean isSocketOpen(){
+        return getConnection().isOpen();
+    }
 }

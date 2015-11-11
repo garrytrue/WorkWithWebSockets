@@ -15,6 +15,7 @@ import android.widget.RelativeLayout;
 import com.garrytrue.workwithwebsocket.R;
 import com.garrytrue.workwithwebsocket.a.fragments.FragmentClientMode;
 import com.garrytrue.workwithwebsocket.a.fragments.FragmentSelectWorkMode;
+import com.garrytrue.workwithwebsocket.a.fragments.FragmentServerMode;
 import com.garrytrue.workwithwebsocket.a.interfaces.IBtnClickListener;
 import com.garrytrue.workwithwebsocket.a.preference.PreferencesManager;
 import com.garrytrue.workwithwebsocket.a.services.ServerService;
@@ -96,7 +97,11 @@ public class MainActivity extends AppCompatActivity implements IBtnClickListener
     }
 
     private void showServerModeFragment() {
-// TODO: 08.11.15 Implement server fragment
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
+        ft.replace(getFragmentContainerId(),
+                FragmentServerMode.newInstance(), getString(R.string.fragment_server_mode_tag));
+        ft.commit();
+        Utils.hideKeyboard(this, mContainer.getWindowToken());
     }
 
     // Handle btn click from fragments
@@ -138,7 +143,7 @@ public class MainActivity extends AppCompatActivity implements IBtnClickListener
         super.onSaveInstanceState(outState);
     }
 
-    protected String wifiIpAddress(Context context) {
+    private String wifiIpAddress(Context context) {
         WifiManager wifiManager = (WifiManager) context.getSystemService(WIFI_SERVICE);
         int ipAddress = wifiManager.getConnectionInfo().getIpAddress();
 
@@ -159,115 +164,5 @@ public class MainActivity extends AppCompatActivity implements IBtnClickListener
 
         return ipAddressString;
     }
-
-
-//    private void runServer() throws UnknownHostException {
-//        mServer = new WebSocketServer() {
-//            @Override
-//            public void onOpen(WebSocket conn, ClientHandshake handshake) {
-//
-//            }
-//
-//            @Override
-//            public void onClose(WebSocket conn, int code, String reason, boolean remote) {
-//
-//            }
-//
-//            @Override
-//            public void onMessage(WebSocket conn, String message) {
-//
-//            }
-//
-//            @Override
-//            public void onMessage(WebSocket conn, ByteBuffer buffer) {
-//
-//            }
-//
-//            @Override
-//            public void onError(WebSocket conn, Exception ex) {
-//
-//            }
-//        };
-//    }
-
-//    private void connectWebSocket() {
-//        URI uri;
-//        try {
-//            uri = new URI("ws://192.168.0.100:10000");
-//        } catch (URISyntaxException e) {
-//            e.printStackTrace();
-//            Snackbar.make(mServerAddress, "Problem", Snackbar.LENGTH_SHORT).show();
-//            return;
-//        }
-//
-//        mWebSocketClient = new WebSocketClient(uri) {
-//            @Override
-//            public void onOpen(ServerHandshake serverHandshake) {
-//                Log.d(TAG, "onOpen() called with: " + "serverHandshake = [" + serverHandshake + "]");
-//                runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        hideProgress();
-//                    }
-//                });
-//                try {
-//                    Cipher cipher = Cipher.getInstance("AES");
-//                    KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
-//                    keyGenerator.init(128);
-//                    // // TODO: 07.11.15 Need sent first secret key after that send encrypted image
-//                    SecretKey secretKey = keyGenerator.generateKey();
-//                    cipher.init(Cipher.ENCRYPT_MODE, secretKey);
-////                    // TODO: 07.11.15 Add input byte array(image) to doFinal()
-//                    byte[] encrypted = cipher.doFinal();
-//                } catch (NoSuchAlgorithmException e) {
-//                    e.printStackTrace();
-//                } catch (NoSuchPaddingException e) {
-//                    e.printStackTrace();
-//                } catch (InvalidKeyException e) {
-//                    e.printStackTrace();
-//                } catch (BadPaddingException e) {
-//                    e.printStackTrace();
-//                } catch (IllegalBlockSizeException e) {
-//                    e.printStackTrace();
-//                }
-//
-//                mWebSocketClient.send("Open Connection " + Build.MANUFACTURER + " " + Build.MODEL);
-//            }
-//
-//            @Override
-//            public void onMessage(String s) {
-//                final String message = s;
-//                runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        mTvLabel.setText(mTvLabel.getText() + "\n" + message);
-//                    }
-//                });
-//            }
-//
-//            @Override
-//            public void onClose(int i, String s, boolean b) {
-//                runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        hideProgress();
-//                    }
-//                });
-//                Log.d(TAG, "onClose() called with: " + "i = [" + i + "], s = [" + s + "], b = [" + b + "]");
-//            }
-//
-//            @Override
-//            public void onError(Exception e) {
-//                runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        hideProgress();
-//                    }
-//                });
-//                Log.d(TAG, "onError() called with: " + "e = [" + e.getMessage() + "]");
-//            }
-//        };
-//        mWebSocketClient.connect();
-//    }
 
 }
