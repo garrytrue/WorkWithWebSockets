@@ -2,32 +2,71 @@ package com.garrytrue.workwithwebsocket.a.services;
 
 import android.app.Service;
 import android.content.Intent;
-import android.os.Handler;
+import android.net.Uri;
+import android.os.Bundle;
 import android.os.IBinder;
-import android.os.Message;
-import android.os.Messenger;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.garrytrue.workwithwebsocket.R;
+import com.garrytrue.workwithwebsocket.a.events.EventConnectionOpen;
+import com.garrytrue.workwithwebsocket.a.interfaces.WebSocketCallback;
+import com.garrytrue.workwithwebsocket.a.utils.Constants;
 import com.garrytrue.workwithwebsocket.a.websockets.AppWebSocketClient;
 
 import org.java_websocket.client.WebSocketClient;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.ByteBuffer;
+
+import de.greenrobot.event.EventBus;
 
 /**
  * Created by TorbaIgor (garrytrue@yandex.ru) on 09.11.15.
  */
 public class ClientService extends Service {
     private static final String TAG = "ClientService";
-    private String mServerAddress;
-    public static final int COMMAND_SEND_MSG_TO_SERVICE = 12;
-    public static final int COMMAND_RECIVE_MSG_FROM_SERVICE = 13;
-    private Messenger mMessenger = new Messenger(new CommunicationHandler());
-
+    private Uri mImageUri;
+    private String mPass;
     private WebSocketClient mClient;
+
+    private WebSocketCallback mCallback = new WebSocketCallback() {
+        @Override
+        public void gotMessage(ByteBuffer buffer) {
+        }
+
+        @Override
+        public void gotOpenConnection() {
+            Log.d(TAG, "gotOpenConnection: Connection is OPEN");
+            EventBus.getDefault().post(new EventConnectionOpen());
+            Thread thread = new Thread(messageSender);
+            thread.start();
+        }
+
+        @Override
+        public void gotCloseConnection(String reason) {
+
+        }
+
+        @Override
+        public void gotError(Exception ex) {
+
+        }
+    };
+    private Runnable messageSender = new Runnable() {
+        @Override
+        public void run() {
+            byte[] arr = getImageByteArray(mImageUri);
+            if (arr != null) {
+                Log.d(TAG, "run: ArrayLenght " + arr.length);
+                mClient.send(arr);
+            }
+        }
+    };
 
     public void onCreate() {
         super.onCreate();
@@ -36,19 +75,32 @@ public class ClientService extends Service {
     }
 
     public int onStartCommand(Intent intent, int flag, int startId) {
-        Log.d(TAG, "onStartCommand() called with: " + "intent = [" + intent + "], flag = [" + flag + "], startId = [" + startId + "]");
-        mServerAddress = intent.getStringExtra(getString(R
-                .string.bundle_key_inet_address));
-        Log.d(TAG, "onStartCommand: Uri for connection " + mServerAddress);
-        initWebSocketClient(mServerAddress);
+        switch (intent.getAction()) {
+            case Constants.ACTION_START_CONNECTION:
+                Bundle bundle = intent.getExtras();
+                if (bundle != null) {
+                    String address = bundle.getString(getString(R.string.bundle_key_inet_address));
+                    Log.d(TAG, "onStartCommand: Address " + address);
+                    mImageUri = Uri.parse(bundle.getString(getString(R.string
+                            .bundle_key_msg_data)));
+                    mPass = bundle.getString(getString(R.string.bundle_key_msg_pass));
+                    try {
+                        initWebSocketClient(intent.getStringExtra(getString(R.string.bundle_key_inet_address)));
+                    } catch (URISyntaxException e) {
+                        Log.e(TAG, "onStartCommand: ", e);
+                        // TODO: 11.11.15 Notify UI about problem with server address
+//                        EventBus.getDefault().
+                    }
+                }
+                break;
+        }
         return START_REDELIVER_INTENT;
     }
 
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        Log.d(TAG, "onBind: ");
-        return mMessenger.getBinder();
+        return null;
     }
 
     public void onRebind(Intent intent) {
@@ -66,35 +118,29 @@ public class ClientService extends Service {
         Log.d(TAG, "onDestroy: ");
     }
 
-    private void initWebSocketClient(String address) {
+    private void initWebSocketClient(String address) throws URISyntaxException {
         URI uri;
-        try {
-            uri = new URI("ws://" + address);
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-            // TODO: 09.11.15 need notify UI about problem
-            return;
-        }
-        mClient = new AppWebSocketClient(uri);
+        uri = new URI("ws://" + address);
+        mClient = new AppWebSocketClient(uri, mCallback);
         mClient.connect();
     }
 
-    class CommunicationHandler extends Handler {
-        @Override
-        public void handleMessage(Message msg) {
-            int what = msg.what;
-            Log.d(TAG, "handleMessage: From ClientService WHAT " + what);
-            switch (what) {
-                case COMMAND_SEND_MSG_TO_SERVICE:
-                    String data = msg.getData().getString(getString(R.string.bundle_key_msg_data)
-                            , "EMPTY_VALUE");
-                    Log.d(TAG, "handleMessage: data ");
-                    mClient.send(data);
-                    break;
+    private byte[] getImageByteArray(Uri imageUri) {
+        assert (imageUri != null);
+        try {
+            InputStream inputStream = getContentResolver().openInputStream(imageUri);
+            ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
+            int bufferSize = 1024;
+            byte[] buffer = new byte[bufferSize];
+            int len = 0;
+            while ((len = inputStream.read(buffer)) != -1) {
+                byteBuffer.write(buffer, 0, len);
             }
-
+            return byteBuffer.toByteArray();
+        } catch (IOException ex) {
+            ex.printStackTrace();
         }
+        return null;
     }
-
 
 }

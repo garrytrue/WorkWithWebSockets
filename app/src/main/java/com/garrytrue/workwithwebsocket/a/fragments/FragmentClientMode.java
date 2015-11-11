@@ -2,20 +2,11 @@ package com.garrytrue.workwithwebsocket.a.fragments;
 
 import android.app.Activity;
 import android.app.Fragment;
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.ServiceConnection;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.IBinder;
-import android.os.Message;
-import android.os.Messenger;
-import android.os.RemoteException;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,11 +17,16 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 
 import com.garrytrue.workwithwebsocket.R;
+import com.garrytrue.workwithwebsocket.a.events.EventConnectionOpen;
+import com.garrytrue.workwithwebsocket.a.interfaces.OnTaskCompliteListener;
 import com.garrytrue.workwithwebsocket.a.preference.PreferencesManager;
-import com.garrytrue.workwithwebsocket.a.services.ClientIntentService;
 import com.garrytrue.workwithwebsocket.a.services.ClientService;
+import com.garrytrue.workwithwebsocket.a.tasks.ProcessBitmapTask;
 import com.garrytrue.workwithwebsocket.a.utils.Constants;
+import com.garrytrue.workwithwebsocket.a.utils.Utils;
 import com.squareup.picasso.Picasso;
+
+import de.greenrobot.event.EventBus;
 
 /**
  * Created by TorbaIgor (garrytrue@yandex.ru) on 08.11.15.
@@ -42,20 +38,12 @@ public class FragmentClientMode extends Fragment {
     public static final int SELECT_IMAGE_FROM_GALLERY = 9;
     private static final String TAG = "FragmentClientMode";
     private Uri mImageUri;
-    private ServiceConnection mConnection;
-    private Messenger mClientService;
-    private EditText mEditTestMessage;
-
-    private BroadcastReceiver responceReciver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Log.d(TAG, "onReceive: " + intent.getAction());
-        }
-    };
+    private EditText mEditTextPass;
 
     private View.OnClickListener mSelectImageClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+            mImageView.setImageResource(R.mipmap.empty_src);
             showImageProgress();
             selectImageFromGallery();
 
@@ -64,29 +52,36 @@ public class FragmentClientMode extends Fragment {
     private View.OnClickListener mSendImageClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            // TODO: 09.11.15 need send command to service
-            String data = mEditTestMessage.getText().toString();
-            Log.d(TAG, "onClick: DATA "+ data);
-//            Bundle container = new Bundle();
-//            container.putString(getString(R.string.bundle_key_msg_data), data);
-//            Message msg = Message.obtain(null, ClientService.COMMAND_SEND_MSG_TO_SERVICE,
-//                    container);
-//            msg.replyTo = mClientService;
-//
-//            try {
-//                mClientService.send(msg);
-//            } catch (RemoteException e) {
-//                e.printStackTrace();
-//            }
-            Intent request = new Intent(getActivity(), ClientIntentService.class);
+            Utils.hideKeyboard(getActivity(), mEditTextPass.getWindowToken());
+            Intent request = new Intent(getActivity(), ClientService.class);
             Bundle bundle = new Bundle();
+//            if (isPasswordValid()) {
+//                bundle.putString(getString(R.string.bundle_key_msg_pass), mEditTextPass.getText().toString());
+//            } else {
+//                Utils.showToast(getActivity(), getString(R.string.error_input_pass));
+//                return;
+//            }
             bundle.putString(getString(R.string.bundle_key_inet_address), new PreferencesManager
                     (getActivity()).getServerAddress());
-            bundle.putString(getString(R.string.bundle_key_msg_data), mImageUri.toString());
+            if (mImageUri != null) {
+                bundle.putString(getString(R.string.bundle_key_msg_data), mImageUri.toString());
+            } else {
+                Utils.showToast(getActivity(), getString(R.string.error_not_image));
+                return;
+            }
+
             request.setAction(Constants.ACTION_START_CONNECTION);
             request.putExtras(bundle);
-           getActivity().startService(request);
+            getActivity().startService(request);
 
+        }
+    };
+
+    private OnTaskCompliteListener mOnTaskCompliteListener = new OnTaskCompliteListener() {
+        @Override
+        public void onTaskComplited(Uri uri) {
+            loadImageFromUri(uri);
+            hideImageProgress();
         }
     };
 
@@ -107,35 +102,43 @@ public class FragmentClientMode extends Fragment {
 
     @Override
     public void onViewCreated(View v, Bundle savedInstanceState) {
+        if (savedInstanceState != null && !TextUtils.isEmpty(savedInstanceState.getString
+                (getString(R.string.bundle_key_store_image_uri_lifecycle)))) {
+            mImageUri = Uri.parse(savedInstanceState.getString
+                    (getString(R.string.bundle_key_store_image_uri_lifecycle)));
+            Log.d(TAG, "onViewCreated: restore URI " + mImageUri);
+        }
         initUI(v);
-//        initServiceConnection();
-//        Intent intent = new Intent(getActivity(), ClientService.class);
-//        getActivity().bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(Constants.ACTION_RECIVE_MSG_IN_CLIENT);
-        filter.addAction(Constants.ACTION_RECIVE_ERR_IN_CLIENT);
-        filter.addAction(Constants.ACTION_CLOSE_CONN_IN_CLIENT);
-        getActivity().registerReceiver(responceReciver, filter);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        listenCallbacks();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
     }
     @Override
-    public void onPause(){
-        super.onPause();
-        getActivity().unregisterReceiver(responceReciver);
+    public void onStop(){
+        notListenCallbacks();
+        super.onStop();
     }
 
-    private void initServiceConnection() {
-        mConnection = new ServiceConnection() {
-            @Override
-            public void onServiceConnected(ComponentName name, IBinder service) {
-                Log.d(TAG, "onServiceConnected() called with: " + "name = [" + name + "], service = [" + service + "]");
-                mClientService = new Messenger(service);
-            }
-
-            @Override
-            public void onServiceDisconnected(ComponentName name) {
-                Log.d(TAG, "onServiceDisconnected() called with: " + "name = [" + name + "]");
-            }
-        };
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        Log.d(TAG, "onSaveInstanceState: URI " + mImageUri);
+        if (mImageUri != null)
+            outState.putString(getString(R.string.bundle_key_store_image_uri_lifecycle), mImageUri.toString());
+        super.onSaveInstanceState(outState);
     }
 
     private void initUI(View v) {
@@ -145,7 +148,13 @@ public class FragmentClientMode extends Fragment {
         mBtnSendImage = (Button) v.findViewById(R.id.btn_send_image);
         mBtnSendImage.setOnClickListener(mSendImageClickListener);
         mImageProgress = (ProgressBar) v.findViewById(R.id.pb_image_progress);
-        mEditTestMessage = (EditText) v.findViewById(R.id.editText);
+        mEditTextPass = (EditText) v.findViewById(R.id.editText);
+        loadImageFromUri(mImageUri);
+    }
+
+    private boolean isPasswordValid() {
+        String pass = mEditTextPass.getText().toString();
+        return !TextUtils.isEmpty(pass);
     }
 
     private void showImageProgress() {
@@ -158,6 +167,13 @@ public class FragmentClientMode extends Fragment {
         if (mImageProgress.getVisibility() == View.VISIBLE) {
             mImageProgress.setVisibility(View.GONE);
         }
+    }
+
+    private void loadImageFromUri(Uri uri) {
+        if (uri != null) {
+            Picasso.with(getActivity()).invalidate(uri);
+        }
+        Picasso.with(getActivity()).load(uri).placeholder(R.mipmap.empty_src).into(mImageView);
     }
 
     private void selectImageFromGallery() {
@@ -174,29 +190,29 @@ public class FragmentClientMode extends Fragment {
             switch (requestCode) {
                 case SELECT_IMAGE_FROM_GALLERY:
                     mImageUri = data.getData();
-                    Log.d(TAG, "onActivityResult: Image Uri "+ mImageUri);
-                    Picasso.with(getActivity()).load(mImageUri).resize(400,
-                            400)
-                            .centerCrop().into
-                            (mImageView);
-                    hideImageProgress();
+                    Log.d(TAG, "onActivityResult: Image Uri " + mImageUri);
+                    ProcessBitmapTask processBitmapTask = new ProcessBitmapTask(getActivity());
+                    processBitmapTask.setTaskCompliteLiistener(mOnTaskCompliteListener);
+                    processBitmapTask.execute(mImageUri);
             }
         }
     }
-//   public static class WebSocetClientResponceHandler extends Handler {
-//        @Override
-//        public void handleMessage(Message msg) {
-//            int what = msg.what;
-//            Log.d(TAG, "handleMessage: WHAT "+ what);
-//            switch (what) {
-//                case ClientService.COMMAND_RECIVE_MSG_FROM_SERVICE:
-//                    String data = msg.getData().getString("bundle_key_msg_data");
-//                    Log.d(TAG, "handleMessage: Get Msg from Service " + data);
-//
-//                    break;
-//            }
-//        }
-//
-//    }
+    private void listenCallbacks() {
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this);
+        } else
+            throw new IllegalStateException(
+                    getString(R.string.exception_eventbus));
+    }
+
+    private void notListenCallbacks() {
+        EventBus.getDefault().unregister(this);
+    }
+
+    public void onEventMainThread(EventConnectionOpen event) {
+        Utils.showToast(getActivity(), getString(R.string.msg_connection_is_open));
+    }
+
+
 
 }

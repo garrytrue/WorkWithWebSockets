@@ -6,4 +6,9 @@
     <string name="run_server">Run as Server</string>
     <string name="select_img">Select image</string>
     <string name="send_img">Send image</string>
+    <string name="password">Password</string>
+    <string name="hint_password">Enter password</string>
+    <string name="error_input_pass">Please check password</string>
+    <string name="error_not_image">Please, select image</string>
+    <string name="msg_connection_is_open">Connection is open</string>
 </resources>

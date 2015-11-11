@@ -23,12 +23,8 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-
         <service
             android:name=".a.services.ClientService"
-            android:exported="false"/>
-        <service
-            android:name=".a.services.ClientIntentService"
             android:exported="false"/>
         <service
             android:name=".a.services.ServerService"

@@ -7,8 +7,13 @@
     <string name="bundle_key_inet_address">bundle_key_inet_address</string>
     <string name="bundle_key_image_uri">bundle_key_image_uri</string>
     <string name="bundle_key_msg_data">bundle_key_msg_data</string>
+    <string name="bundle_key_store_image_uri_lifecycle">bundle_key_store_image_uri_lifecycle</string>
+    <string name="bundle_key_msg_pass">bundle_key_msg_pass</string>
     <!-- Names for fragments-->
     <string name="fragment_select_work_mode_tag">fragment_select_work_mode_tag</string>
     <string name="fragment_client_mode_tag">fragment_client_mode_tag</string>
     <string name="fragment_server_mode_tag">fragment_server_mode_tag</string>
+
+    <string name="exception_eventbus">This object was been subscribed</string>
+
 </resources>

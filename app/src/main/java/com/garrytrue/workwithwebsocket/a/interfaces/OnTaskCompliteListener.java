@@ -1,10 +1,10 @@
 package com.garrytrue.workwithwebsocket.a.interfaces;
 
-import android.graphics.Bitmap;
+import android.net.Uri;
 
 /**
  * Created by TorbaIgor (garrytrue@yandex.ru) on 09.11.15.
  */
-public interface IBmpLoadListener {
-    void onBitmapLoad(Bitmap bmp);
+public interface OnTaskCompliteListener {
+    void onTaskComplited(Uri uri);
 }

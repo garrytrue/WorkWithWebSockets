@@ -2,9 +2,6 @@ package com.garrytrue.workwithwebsocket.a.fragments;
 
 import android.app.Activity;
 import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
-import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,10 +11,9 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.garrytrue.workwithwebsocket.R;
-import com.garrytrue.workwithwebsocket.a.activities.MainActivity;
 import com.garrytrue.workwithwebsocket.a.interfaces.IBtnClickListener;
 import com.garrytrue.workwithwebsocket.a.preference.PreferencesManager;
-import com.garrytrue.workwithwebsocket.a.utils.Validator;
+import com.garrytrue.workwithwebsocket.a.utils.Utils;
 
 /**
  * Created by TorbaIgor (garrytrue@yandex.ru) on 08.11.15.
@@ -88,18 +84,18 @@ public class FragmentSelectWorkMode extends Fragment {
 
     private boolean validateInput() {
         mAddress = mServerAddress.getText().toString();
-        if (Validator.isAddressValid(mAddress)) {
+        if (Utils.isAddressValid(mAddress)) {
             Log.d(TAG, "validateInput: Valid input");
             preferencesManager.putServerAddress(mAddress);
         } else {
             Log.d(TAG, "validateInput: Invalid input");
             mServerAddress.setError(getString(R.string.error_input_address));
         }
-        return Validator.isAddressValid(mAddress);
+        return Utils.isAddressValid(mAddress);
     }
 
     private void showLastInput() {
-        if (Validator.isAddressValid(preferencesManager.getServerAddress()))
+        if (Utils.isAddressValid(preferencesManager.getServerAddress()))
             mServerAddress.setText(preferencesManager.getServerAddress());
     }
 }

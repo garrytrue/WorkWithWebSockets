@@ -11,8 +11,7 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="23dp"
         android:contentDescription="@null"
-        android:src="@mipmap/empty_src"
-        android:scaleType="fitStart"
+        android:scaleType="centerCrop"
         android:adjustViewBounds="true"/>
 
     <Button
@@ -32,14 +31,6 @@
         android:layout_alignBaseline="@+id/btn_select_image"
         android:layout_alignEnd="@+id/imageView"/>
 
-    <EditText
-        android:layout_width="100dp"
-        android:layout_height="wrap_content"
-        android:id="@+id/editText"
-        android:layout_below="@+id/btn_select_image"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="32dp"/>
-
     <ProgressBar
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -48,5 +39,24 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="74dp"
         android:visibility="gone"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/password"
+        android:id="@+id/tvPassword"
+        android:layout_marginTop="29dp"
+        android:textSize="16dp"
+        android:layout_below="@+id/btn_select_image"
+        android:layout_marginStart="22dp"/>
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/editText"
+        android:layout_alignBaseline="@+id/tvPassword"
+        android:layout_centerHorizontal="true"
+        android:hint="@string/hint_password"
+        android:singleLine="true"/>
 
 </RelativeLayout>

@@ -1,5 +1,6 @@
 package com.garrytrue.workwithwebsocket.a.activities;
 
+import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
@@ -12,17 +13,12 @@ import android.util.Log;
 import android.widget.RelativeLayout;
 
 import com.garrytrue.workwithwebsocket.R;
-import com.garrytrue.workwithwebsocket.a.services.ClientIntentService;
-import com.garrytrue.workwithwebsocket.a.services.ClientService;
 import com.garrytrue.workwithwebsocket.a.fragments.FragmentClientMode;
 import com.garrytrue.workwithwebsocket.a.fragments.FragmentSelectWorkMode;
 import com.garrytrue.workwithwebsocket.a.interfaces.IBtnClickListener;
 import com.garrytrue.workwithwebsocket.a.preference.PreferencesManager;
 import com.garrytrue.workwithwebsocket.a.services.ServerService;
-import com.garrytrue.workwithwebsocket.a.utils.Constants;
-
-import org.java_websocket.client.WebSocketClient;
-import org.java_websocket.server.WebSocketServer;
+import com.garrytrue.workwithwebsocket.a.utils.Utils;
 
 import java.math.BigInteger;
 import java.net.InetAddress;
@@ -30,9 +26,6 @@ import java.net.UnknownHostException;
 import java.nio.ByteOrder;
 
 public class MainActivity extends AppCompatActivity implements IBtnClickListener {
-
-    private WebSocketClient mWebSocketClient;
-    private WebSocketServer mServer;
     private RelativeLayout mContainer;
     private static final String TAG = "MainActivity";
 
@@ -46,17 +39,32 @@ public class MainActivity extends AppCompatActivity implements IBtnClickListener
                 (getString(R.string.bundle_key_current_fragment_tag)))) {
             handleSavedState(savedInstanceState.getString
                     (getString(R.string.bundle_key_current_fragment_tag)));
+        } else {
+            showSelectModeFragment();
         }
 
     }
 
     private void handleSavedState(String tag) {
-        if (tag.equals(getString(R.string.fragment_select_work_mode_tag))) {
-            showSelectModeFragment();
-        } else if (tag.equals(getString(R.string.fragment_client_mode_tag))) {
-            showClientModeFragment();
-        } else if (tag.equals(getString(R.string.fragment_server_mode_tag))) {
-            showServerModeFragment();
+        Fragment fr = getFragmentManager().findFragmentById(getFragmentContainerId());
+        if (fr != null && !TextUtils.isEmpty(fr.getTag())) {
+            String currentTag = fr.getTag();
+            Log.d(TAG, "handleSavedState: CURRENT_TAG " + fr.getTag());
+            fr = getFragmentManager().findFragmentByTag(currentTag);
+            Log.d(TAG, "handleSavedState: NEW_TAG " + fr.getTag());
+            if (fr.isAdded()) {
+                Log.d(TAG, "handleSavedState: Fragment is addided");
+                FragmentTransaction ft = getFragmentManager().beginTransaction();
+                ft.show(fr).commit();
+            }
+        } else {
+            if (tag.equals(getString(R.string.fragment_select_work_mode_tag))) {
+                showSelectModeFragment();
+            } else if (tag.equals(getString(R.string.fragment_client_mode_tag))) {
+                showClientModeFragment();
+            } else if (tag.equals(getString(R.string.fragment_server_mode_tag))) {
+                showServerModeFragment();
+            }
         }
     }
 
@@ -64,8 +72,7 @@ public class MainActivity extends AppCompatActivity implements IBtnClickListener
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         mContainer = (RelativeLayout) findViewById(R.id.fragment_container);
-        showSelectModeFragment();
-        Log.d(TAG, "initUI: WIFI_ADDRESS "+ wifiIpAddress(this));
+        Log.d(TAG, "initUI: WIFI_ADDRESS " + wifiIpAddress(this));
     }
 
     public int getFragmentContainerId() {
@@ -77,6 +84,7 @@ public class MainActivity extends AppCompatActivity implements IBtnClickListener
         ft.replace(getFragmentContainerId(), FragmentSelectWorkMode.newInstance(), getString(R.string
                 .fragment_select_work_mode_tag));
         ft.commit();
+        Utils.hideKeyboard(this, mContainer.getWindowToken());
     }
 
     private void showClientModeFragment() {
@@ -84,6 +92,7 @@ public class MainActivity extends AppCompatActivity implements IBtnClickListener
         ft.replace(getFragmentContainerId(),
                 FragmentClientMode.newInstance(), getString(R.string.fragment_client_mode_tag));
         ft.commit();
+        Utils.hideKeyboard(this, mContainer.getWindowToken());
     }
 
     private void showServerModeFragment() {
@@ -96,28 +105,20 @@ public class MainActivity extends AppCompatActivity implements IBtnClickListener
         switch (id) {
             case R.id.btn_start_client:
                 showClientModeFragment();
-                startClientService();
                 break;
             case R.id.btn_start_server:
                 showServerModeFragment();
                 startServirService();
         }
     }
-    private void startServirService(){
+
+    private void startServirService() {
         Intent intent = new Intent(this, ServerService.class);
         intent.putExtra(getString(R.string.bundle_key_inet_address), new PreferencesManager
                 (this).getServerAddress());
         startService(intent);
     }
 
-    private void startClientService() {
-////        Intent intent = new Intent(this, ClientService.class);
-//        Intent intent = new Intent(this, ClientIntentService.class);
-//        intent.setAction(Constants.ACTION_START_CONNECTION);
-//        intent.putExtra(getString(R.string.bundle_key_inet_address), new PreferencesManager
-//                (this).getServerAddress());
-//        startService(intent);
-    }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
@@ -136,6 +137,7 @@ public class MainActivity extends AppCompatActivity implements IBtnClickListener
         }
         super.onSaveInstanceState(outState);
     }
+
     protected String wifiIpAddress(Context context) {
         WifiManager wifiManager = (WifiManager) context.getSystemService(WIFI_SERVICE);
         int ipAddress = wifiManager.getConnectionInfo().getIpAddress();
