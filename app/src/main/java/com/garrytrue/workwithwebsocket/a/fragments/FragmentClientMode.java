@@ -1,7 +1,6 @@
 package com.garrytrue.workwithwebsocket.a.fragments;
 
 import android.app.Activity;
-import android.app.Fragment;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -18,26 +17,17 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.garrytrue.workwithwebsocket.R;
-import com.garrytrue.workwithwebsocket.a.events.EventConnectionClosed;
-import com.garrytrue.workwithwebsocket.a.events.EventConnectionError;
-import com.garrytrue.workwithwebsocket.a.events.EventConnectionOpen;
-import com.garrytrue.workwithwebsocket.a.events.EventProblemParsURI;
 import com.garrytrue.workwithwebsocket.a.interfaces.OnTaskCompliteListener;
 import com.garrytrue.workwithwebsocket.a.preference.PreferencesManager;
 import com.garrytrue.workwithwebsocket.a.services.ClientService;
 import com.garrytrue.workwithwebsocket.a.tasks.ProcessBitmapTask;
 import com.garrytrue.workwithwebsocket.a.utils.Constants;
 import com.garrytrue.workwithwebsocket.a.utils.Utils;
-import com.squareup.picasso.Picasso;
-
-import de.greenrobot.event.EventBus;
 
 /**
  * Created by TorbaIgor (garrytrue@yandex.ru) on 08.11.15.
  */
-public class FragmentClientMode extends Fragment {
-    private ImageView mImageView;
-    private ProgressBar mImageProgress;
+public class FragmentClientMode extends BaseClientServerFragment {
     public static final int SELECT_IMAGE_FROM_GALLERY = 9;
     private static final String TAG = "FragmentClientMode";
     private Uri mImageUri;
@@ -58,12 +48,12 @@ public class FragmentClientMode extends Fragment {
             Utils.hideKeyboard(getActivity(), mEditTextPass.getWindowToken());
             Intent request = new Intent(getActivity(), ClientService.class);
             Bundle bundle = new Bundle();
-//            if (isPasswordValid()) {
-//                bundle.putString(getString(R.string.bundle_key_msg_pass), mEditTextPass.getText().toString());
-//            } else {
-//                Utils.showToast(getActivity(), getString(R.string.error_input_pass));
-//                return;
-//            }
+            if (isPasswordValid()) {
+                bundle.putString(getString(R.string.bundle_key_msg_pass), mEditTextPass.getText().toString());
+            } else {
+                Utils.showToast(getActivity(), getString(R.string.error_input_pass));
+                return;
+            }
             bundle.putString(getString(R.string.bundle_key_inet_address), new PreferencesManager
                     (getActivity()).getServerAddress());
             if (mImageUri != null) {
@@ -83,7 +73,9 @@ public class FragmentClientMode extends Fragment {
     private OnTaskCompliteListener mOnTaskCompliteListener = new OnTaskCompliteListener() {
         @Override
         public void onTaskComplited(Uri uri) {
-            loadImageFromUri(uri);
+            Log.d(TAG, "onTaskComplited: URI " + uri);
+            mImageUri = uri;
+            loadImageFromUri(mImageUri);
             hideImageProgress();
         }
     };
@@ -114,42 +106,6 @@ public class FragmentClientMode extends Fragment {
         initUI(v);
     }
 
-    private void initUI(View v) {
-        mImageView = (ImageView) v.findViewById(R.id.imageView);
-       Button btnSelectImage = (Button) v.findViewById(R.id.btn_select_image);
-        btnSelectImage.setOnClickListener(mSelectImageClickListener);
-        Button btnSendImage = (Button) v.findViewById(R.id.btn_send_image);
-        btnSendImage.setOnClickListener(mSendImageClickListener);
-        mImageProgress = (ProgressBar) v.findViewById(R.id.pb_image_progress);
-        mEditTextPass = (EditText) v.findViewById(R.id.editText);
-        TextView tvServerAddress = (TextView) v.findViewById(R.id.tvServerAdr);
-        tvServerAddress.setText(String.format(getString(R.string.server_address_w_format),new PreferencesManager
-                (getActivity()).getServerAddress()));
-        loadImageFromUri(mImageUri);
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        listenCallbacks();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-
-    }
-    @Override
-    public void onStop(){
-        notListenCallbacks();
-        super.onStop();
-    }
-
     @Override
     public void onSaveInstanceState(Bundle outState) {
         Log.d(TAG, "onSaveInstanceState: URI " + mImageUri);
@@ -159,28 +115,24 @@ public class FragmentClientMode extends Fragment {
     }
 
 
+    protected void initUI(View v) {
+        mImageView = (ImageView) v.findViewById(R.id.imageView);
+        Button btnSelectImage = (Button) v.findViewById(R.id.btn_select_image);
+        btnSelectImage.setOnClickListener(mSelectImageClickListener);
+        Button btnSendImage = (Button) v.findViewById(R.id.btn_send_image);
+        btnSendImage.setOnClickListener(mSendImageClickListener);
+        mImageProgress = (ProgressBar) v.findViewById(R.id.pb_image_progress);
+        mEditTextPass = (EditText) v.findViewById(R.id.editText);
+        TextView tvServerAddress = (TextView) v.findViewById(R.id.tvServerAdr);
+        tvServerAddress.setText(String.format(getString(R.string.server_address_w_format), new PreferencesManager
+                (getActivity()).getServerAddress()));
+        loadImageFromUri(mImageUri);
+    }
+
+
     private boolean isPasswordValid() {
         String pass = mEditTextPass.getText().toString();
         return !TextUtils.isEmpty(pass);
-    }
-
-    private void showImageProgress() {
-        if (mImageProgress.getVisibility() == View.GONE) {
-            mImageProgress.setVisibility(View.VISIBLE);
-        }
-    }
-
-    private void hideImageProgress() {
-        if (mImageProgress.getVisibility() == View.VISIBLE) {
-            mImageProgress.setVisibility(View.GONE);
-        }
-    }
-
-    private void loadImageFromUri(Uri uri) {
-        if (uri != null) {
-            Picasso.with(getActivity()).invalidate(uri);
-        }
-        Picasso.with(getActivity()).load(uri).placeholder(R.mipmap.empty_src).into(mImageView);
     }
 
     private void selectImageFromGallery() {
@@ -204,31 +156,4 @@ public class FragmentClientMode extends Fragment {
             }
         }
     }
-    private void listenCallbacks() {
-        if (!EventBus.getDefault().isRegistered(this)) {
-            EventBus.getDefault().register(this);
-        } else
-            throw new IllegalStateException(
-                    getString(R.string.exception_eventbus));
-    }
-
-    private void notListenCallbacks() {
-        EventBus.getDefault().unregister(this);
-    }
-
-    public void onEventMainThread(EventConnectionOpen event) {
-        Utils.showToast(getActivity(), getString(R.string.msg_connection_is_open));
-    }
-    public void onEventMainThread(EventProblemParsURI event) {
-        Utils.showToast(getActivity(), getString(R.string.msg_wrong_uri));
-    }
-    public void onEventMainThread(EventConnectionClosed event) {
-        Utils.showToast(getActivity(), event.getReason());
-    }
-    public void onEventMainThread(EventConnectionError event) {
-        Utils.showToast(getActivity(), event.getMessage());
-    }
-
-
-
 }

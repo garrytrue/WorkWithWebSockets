@@ -73,7 +73,6 @@ public class MainActivity extends AppCompatActivity implements IBtnClickListener
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         mContainer = (RelativeLayout) findViewById(R.id.fragment_container);
-        Log.d(TAG, "initUI: WIFI_ADDRESS " + wifiIpAddress(this));
     }
 
     public int getFragmentContainerId() {
@@ -143,8 +142,8 @@ public class MainActivity extends AppCompatActivity implements IBtnClickListener
         super.onSaveInstanceState(outState);
     }
 
-    private String wifiIpAddress(Context context) {
-        WifiManager wifiManager = (WifiManager) context.getSystemService(WIFI_SERVICE);
+    private String wifiIpAddress() {
+        WifiManager wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
         int ipAddress = wifiManager.getConnectionInfo().getIpAddress();
 
         // Convert little-endian to big-endianif needed

@@ -16,4 +16,6 @@
     <string name="server_address_w_format">Server Address: %s</string>
     <string name="msg_got_new_image">Got new image</string>
     <string name="msg_receive_image">Image was received</string>
+    <string name="preferred_ip">Server Preferred IP: %s</string>
+    <string name="preferred_port">Port: 8887</string>
 </resources>

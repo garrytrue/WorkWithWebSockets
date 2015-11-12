@@ -8,7 +8,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.garrytrue.workwithwebsocket.a.interfaces.OnTaskCompliteListener;
-import com.garrytrue.workwithwebsocket.a.utils.BitmapUtils;
+import com.garrytrue.workwithwebsocket.a.utils.BitmapFileUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -39,16 +39,16 @@ public class ProcessBitmapTask extends AsyncTask<Uri, Void, Uri> {
             Bitmap bmp = getBitmap(params[0], mWeakContext.get());
             if (!isCancelled() && bmp != null) {
                 Log.d(TAG, "doInBackground: bitmap is " + bmp.toString());
-                File file = new File(mWeakContext.get().getFilesDir(),
-                        BitmapUtils.TEMP_BMP_FILE_NAME);
-                if(file.exists()){
+                File file = new File(mWeakContext.get().getCacheDir(),
+                        BitmapFileUtils.TEMP_BMP_FILE_NAME);
+                if (file.exists()) {
                     Log.d(TAG, "doInBackground: file is exist");
                     file.delete();
                 }
-                BitmapUtils.saveToFile(bmp, new File(mWeakContext.get().getFilesDir(),
-                        BitmapUtils.TEMP_BMP_FILE_NAME));
+                BitmapFileUtils.saveToFile(bmp, new File(mWeakContext.get().getCacheDir(),
+                        BitmapFileUtils.TEMP_BMP_FILE_NAME));
                 bmp.recycle();
-                Log.d(TAG, "doInBackground: uri "+  Uri.fromFile(file));
+                Log.d(TAG, "doInBackground: uri " + Uri.fromFile(file));
                 return Uri.fromFile(file);
             }
         }
@@ -76,11 +76,11 @@ public class ProcessBitmapTask extends AsyncTask<Uri, Void, Uri> {
             in.close();
 
             int scale = 1;
-            if (o.outHeight > BitmapUtils.IMAGE_MAX_SIZE || o.outWidth > BitmapUtils
+            if (o.outHeight > BitmapFileUtils.IMAGE_MAX_SIZE || o.outWidth > BitmapFileUtils
                     .IMAGE_MAX_SIZE) {
                 scale = (int) Math.pow(
                         2,
-                        (int) Math.round(Math.log(BitmapUtils.IMAGE_MAX_SIZE
+                        (int) Math.round(Math.log(BitmapFileUtils.IMAGE_MAX_SIZE
                                 / (double) Math.max(o.outHeight, o.outWidth))
                                 / Math.log(0.5)));
             }

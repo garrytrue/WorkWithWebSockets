@@ -15,10 +15,8 @@ import com.garrytrue.workwithwebsocket.a.events.EventConnectionError;
 import com.garrytrue.workwithwebsocket.a.events.EventImageReciered;
 import com.garrytrue.workwithwebsocket.a.interfaces.OnTaskCompliteListener;
 import com.garrytrue.workwithwebsocket.a.interfaces.WebSocketCallback;
-import com.garrytrue.workwithwebsocket.a.utils.BitmapUtils;
+import com.garrytrue.workwithwebsocket.a.utils.BitmapFileUtils;
 import com.garrytrue.workwithwebsocket.a.websockets.AppWebSocketServer;
-
-import org.java_websocket.server.WebSocketServer;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
@@ -33,7 +31,7 @@ import de.greenrobot.event.EventBus;
 public class ServerService extends Service {
     private static final String TAG = "ServerService";
     private String mServerAddress;
-    private WebSocketServer mWebSocketServer;
+    private AppWebSocketServer mWebSocketServer;
     private WebSocketCallback mCallback = new WebSocketCallback() {
         @Override
         public void gotMessage(ByteBuffer buffer) {
@@ -57,6 +55,11 @@ public class ServerService extends Service {
         public void gotError(Exception ex) {
             EventBus.getDefault().post(new EventConnectionError(ex.getMessage()));
         }
+
+        @Override
+        public void gotMessage(String msg) {
+
+        }
     };
     private OnTaskCompliteListener mTaskCompliteListener = new OnTaskCompliteListener() {
         @Override
@@ -74,7 +77,7 @@ public class ServerService extends Service {
                 .string.bundle_key_inet_address));
         Log.d(TAG, "onStartCommand: Uri for connection " + mServerAddress);
         initWebSocketServer(mServerAddress);
-        return START_REDELIVER_INTENT;
+        return START_NOT_STICKY;
     }
 
     private void initWebSocketServer(String address) {
@@ -106,23 +109,24 @@ public class ServerService extends Service {
             mTaskCompliteListenerRef = new WeakReference<>(listener);
         }
 
-        private Uri saveBitmap(ByteBuffer byteBuffer) {
-            File file = new File(getApplicationContext().getFilesDir(),
-                    BitmapUtils.DOWNLOADED_BMP_FILE_NAME);
+        private Uri saveBitmapToCache(ByteBuffer byteBuffer) {
+            File file = new File(getApplicationContext().getCacheDir(),
+                    BitmapFileUtils.TEMP_DOWNLOADED_FILE_NAME);
             if (file.exists()) {
                 Log.d(TAG, "doInBackground: file is exist");
                 file.delete();
             }
-            BitmapUtils.saveToFile(byteBuffer.array(), new File(getApplicationContext()
-                    .getFilesDir(),
-                    BitmapUtils.DOWNLOADED_BMP_FILE_NAME));
+            BitmapFileUtils.saveToFile(byteBuffer.array(), new File(getApplicationContext()
+                    .getCacheDir(),
+                    BitmapFileUtils.TEMP_DOWNLOADED_FILE_NAME));
             return Uri.fromFile(file);
         }
 
         @Override
         public void run() {
+            Uri uri = saveBitmapToCache(mByteBuffer);
             if (mTaskCompliteListenerRef != null) {
-                mTaskCompliteListenerRef.get().onTaskComplited(saveBitmap(mByteBuffer));
+                mTaskCompliteListenerRef.get().onTaskComplited(uri);
             }
         }
     }

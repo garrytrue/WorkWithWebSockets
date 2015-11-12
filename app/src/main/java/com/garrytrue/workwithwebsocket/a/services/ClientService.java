@@ -15,6 +15,7 @@ import com.garrytrue.workwithwebsocket.a.events.EventConnectionOpen;
 import com.garrytrue.workwithwebsocket.a.events.EventProblemParsURI;
 import com.garrytrue.workwithwebsocket.a.interfaces.WebSocketCallback;
 import com.garrytrue.workwithwebsocket.a.utils.Constants;
+import com.garrytrue.workwithwebsocket.a.utils.DecoderEncoderUtils;
 import com.garrytrue.workwithwebsocket.a.websockets.AppWebSocketClient;
 
 import java.io.ByteArrayOutputStream;
@@ -33,7 +34,7 @@ public class ClientService extends Service {
     private static final String TAG = "ClientService";
     private Uri mImageUri;
     private String mPass;
-    private AppWebSocketClient mClient;
+    private AppWebSocketClient mSocketClient;
 
     private WebSocketCallback mCallback = new WebSocketCallback() {
         @Override
@@ -56,14 +57,24 @@ public class ClientService extends Service {
         public void gotError(Exception ex) {
             EventBus.getDefault().post(new EventConnectionError(ex.getMessage()));
         }
+
+        @Override
+        public void gotMessage(String msg) {
+
+        }
     };
     private Runnable messageSender = new Runnable() {
         @Override
         public void run() {
-            byte[] arr = getImageByteArray(mImageUri);
-            if (arr != null) {
-                Log.d(TAG, "run: ArrayLenght " + arr.length);
-                mClient.send(arr);
+            Log.d(TAG, "run: Pass was Sended "+ mPass);
+            mSocketClient.send(mPass);
+            Log.d(TAG, "run: Pass was Sended ");
+            byte[] imArr = getImageByteArray(mImageUri);
+//            byte [] encodeArr = DecoderEncoderUtils.encodeByteArray(imArr);
+            if (imArr != null) {
+                Log.d(TAG, "run: EncodedArrayLenght " + imArr.length);
+                mSocketClient.send(imArr);
+                stopSelf();
             }
         }
     };
@@ -84,21 +95,17 @@ public class ClientService extends Service {
                     mImageUri = Uri.parse(bundle.getString(getString(R.string
                             .bundle_key_msg_data)));
                     mPass = bundle.getString(getString(R.string.bundle_key_msg_pass));
-                    if (mClient != null && mClient.isSocketOpen()) {
-                        messageSender.run();
-                    } else {
                         try {
                             initWebSocketClient(intent.getStringExtra(getString(R.string.bundle_key_inet_address)));
                         } catch (URISyntaxException e) {
                             Log.e(TAG, "onStartCommand: ", e);
                             // TODO: 11.11.15 Notify UI about problem with server address
                             EventBus.getDefault().post(new EventProblemParsURI());
-                        }
                     }
                 }
                 break;
         }
-        return START_REDELIVER_INTENT;
+        return START_NOT_STICKY;
     }
 
     @Nullable
@@ -125,8 +132,8 @@ public class ClientService extends Service {
     private void initWebSocketClient(String address) throws URISyntaxException {
         URI uri;
         uri = new URI("ws://" + address);
-        mClient = new AppWebSocketClient(uri, mCallback);
-        mClient.connect();
+        mSocketClient = new AppWebSocketClient(uri, mCallback);
+        mSocketClient.connect();
     }
 
     private byte[] getImageByteArray(Uri imageUri) {

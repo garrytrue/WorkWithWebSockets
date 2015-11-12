@@ -15,5 +15,7 @@ public interface WebSocketCallback {
 
     void gotError(Exception ex);
 
+    void gotMessage(String msg);
+
 
 }
