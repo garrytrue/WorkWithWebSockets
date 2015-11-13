@@ -43,6 +43,10 @@ public class AppWebSocketServer extends WebSocketServer {
     @Override
     public void onMessage(WebSocket conn, String message) {
         Log.d(TAG, "onMessage() called with: " + "conn = [" + conn + "], message = [" + message + "]");
+        if (mCallback != null) {
+            Log.d(TAG, "onMessage: GOT_FUCK_MSG");
+            mCallback.get().gotMessage(message);
+        }
     }
 
     @Override
@@ -62,6 +66,5 @@ public class AppWebSocketServer extends WebSocketServer {
         if (mCallback != null) {
             mCallback.get().gotError(ex);
         }
-
     }
 }

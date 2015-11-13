@@ -4,43 +4,62 @@
                 android:layout_height="match_parent">
 
     <ImageView
+        android:id="@+id/imageView"
         android:layout_width="250dp"
         android:layout_height="250dp"
-        android:id="@+id/imageView"
         android:layout_below="@+id/tvServerAdr"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="8dp"
+        android:adjustViewBounds="true"
         android:contentDescription="@null"
-        android:scaleType="centerCrop"
-        android:adjustViewBounds="true"/>
+        android:scaleType="centerCrop"/>
 
-    <Button
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/save_img"
-        android:id="@+id/btn_save_image"
         android:layout_below="@+id/imageView"
-        android:layout_alignEnd="@+id/tvServerAdr"
-        android:visibility="gone"/>
+        android:layout_centerHorizontal="true"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btn_stop_service"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignEnd="@+id/tvServerAdr"
+            android:layout_below="@+id/imageView"
+            android:text="@string/stop_service"
+            android:visibility="visible"
+            android:layout_margin="5dp"/>
+
+        <Button
+            android:id="@+id/btn_save_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignEnd="@+id/tvServerAdr"
+            android:layout_below="@+id/imageView"
+            android:text="@string/save_img"
+            android:visibility="gone"
+            android:layout_margin="5dp"/>
+    </LinearLayout>
 
     <ProgressBar
+        android:id="@+id/pb_image_progress"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/pb_image_progress"
         android:layout_alignTop="@+id/imageView"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="74dp"
         android:visibility="gone"/>
 
     <TextView
+        android:id="@+id/tvServerAdr"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Medium Text"
-        android:id="@+id/tvServerAdr"
-        android:layout_marginTop="8dp"
         android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"/>
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="8dp"
+        android:text="Medium Text"
+        android:textAppearance="?android:attr/textAppearanceMedium"/>
 
 
 </RelativeLayout>

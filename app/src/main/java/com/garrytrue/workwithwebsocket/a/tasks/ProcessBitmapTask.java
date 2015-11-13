@@ -45,11 +45,16 @@ public class ProcessBitmapTask extends AsyncTask<Uri, Void, Uri> {
                     Log.d(TAG, "doInBackground: file is exist");
                     file.delete();
                 }
-                BitmapFileUtils.saveToFile(bmp, new File(mWeakContext.get().getCacheDir(),
-                        BitmapFileUtils.TEMP_BMP_FILE_NAME));
-                bmp.recycle();
-                Log.d(TAG, "doInBackground: uri " + Uri.fromFile(file));
-                return Uri.fromFile(file);
+
+                try {
+                    BitmapFileUtils.saveToFile(new File(mWeakContext.get().getCacheDir(),
+                            BitmapFileUtils.TEMP_BMP_FILE_NAME), bmp);
+                    bmp.recycle();
+                    Log.d(TAG, "doInBackground: uri " + Uri.fromFile(file));
+                    return Uri.fromFile(file);
+                } catch (IOException e) {
+                    Log.e(TAG, "doInBackground: ", e);
+                }
             }
         }
         return null;

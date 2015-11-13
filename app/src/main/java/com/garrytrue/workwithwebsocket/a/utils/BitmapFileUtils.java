@@ -1,8 +1,8 @@
 package com.garrytrue.workwithwebsocket.a.utils;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Environment;
-import android.util.Log;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -15,42 +15,34 @@ import java.util.Date;
 /**
  * Created by TorbaIgor (garrytrue@yandex.ru) on 10.11.15.
  */
-public final class BitmapFileUtils {
-    private static final String TAG = "BitmapFileUtils";
+public class BitmapFileUtils {
     public static final int IMAGE_MAX_SIZE = 1024;
-
     public static final String FILE_SUFFIX = ".jpg";
     public static final String PATH_PREFIX = "file:";
     public static final String TEMP_BMP_FILE_NAME = "temp_cropped_file" + FILE_SUFFIX;
     public static final String DOWNLOADED_BMP_FILE_NAME = "file_downloded_";
     public static final String TEMP_DOWNLOADED_FILE_NAME = "temp_downloaded_file" + FILE_SUFFIX;
 
-    public static String getBmpFileName() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(DOWNLOADED_BMP_FILE_NAME)
-                .append(new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date()));
-        return sb.toString();
+    private static final int BUFFER_SIZE = 1024;
+
+    private BitmapFileUtils(){
+        throw new AssertionError();
+
     }
 
-    public static void saveToFile(Bitmap bitmap, File file) {
-        FileOutputStream out = null;
-        try {
-            out = new FileOutputStream(file);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (out != null) {
-                try {
-                    out.close();
-                } catch (IOException e) {
+    public static String generateBmpFileName() {
+        return new StringBuilder().append(DOWNLOADED_BMP_FILE_NAME).append(new SimpleDateFormat
+                ("yyyyMMdd_HHmmss").format(new Date())).toString();
 
-                }
-            }
-        }
     }
 
-    public static void saveToFile(byte[] array, File file) {
+    public static void saveToFile(File file, Bitmap bitmap) throws IOException {
+        FileOutputStream out = new FileOutputStream(file);
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+        out.close();
+    }
+
+    public static void saveToFile(File file, byte[] array) {
         FileOutputStream out = null;
 
         try {
@@ -71,25 +63,27 @@ public final class BitmapFileUtils {
         }
     }
 
-    public static File createImageFile() {
-        File image = null;
-        try {
-            image = File.createTempFile(getBmpFileName(), FILE_SUFFIX, Environment
+    public static File createImageFile() throws IOException{
+        File image = File.createTempFile(generateBmpFileName(), FILE_SUFFIX, Environment
                     .getExternalStoragePublicDirectory(
                             Environment.DIRECTORY_PICTURES));
-        } catch (IOException ex) {
-            Log.e(TAG, "createImageFile: ", ex);
-        }
         return image;
     }
 
     public static void copyStream(InputStream input, OutputStream output)
             throws IOException {
-        byte[] buffer = new byte[1024];
+        byte[] buffer = new byte[BUFFER_SIZE];
         int bytesRead;
         while ((bytesRead = input.read(buffer)) != -1) {
             output.write(buffer, 0, bytesRead);
         }
+    }
+      public static void deleteCachedFiles(Context c) {
+        File[] fileList = c.getCacheDir().listFiles();
+        for (File f : fileList) {
+            f.delete();
+        }
+
     }
 
 }

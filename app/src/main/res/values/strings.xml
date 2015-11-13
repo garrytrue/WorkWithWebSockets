@@ -7,6 +7,7 @@
     <string name="select_img">Select image</string>
     <string name="save_img">Save image</string>
     <string name="send_img">Send image</string>
+    <string name="stop_service">Stop Server</string>
     <string name="password">Password</string>
     <string name="hint_password">Enter password</string>
     <string name="error_input_pass">Please check password</string>

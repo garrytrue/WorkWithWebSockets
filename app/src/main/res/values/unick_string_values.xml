@@ -2,6 +2,7 @@
 <resources>
     <!-- Key for prefences-->
     <string name="pref_key_server_address">pref_key_server_address</string>
+    <string name="pref_key_downloaded_image_uri">pref_downloaded_image_uri</string>
     <!-- Key for bundle-->
     <string name="bundle_key_current_fragment_tag">bundle_key_current_fragment_tag</string>
     <string name="bundle_key_inet_address">bundle_key_inet_address</string>

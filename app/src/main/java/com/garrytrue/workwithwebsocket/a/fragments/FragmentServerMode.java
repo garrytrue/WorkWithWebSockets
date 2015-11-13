@@ -1,5 +1,6 @@
 package com.garrytrue.workwithwebsocket.a.fragments;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -15,6 +16,7 @@ import android.widget.TextView;
 import com.garrytrue.workwithwebsocket.R;
 import com.garrytrue.workwithwebsocket.a.events.EventImageReciered;
 import com.garrytrue.workwithwebsocket.a.preference.PreferencesManager;
+import com.garrytrue.workwithwebsocket.a.services.ServerService;
 import com.garrytrue.workwithwebsocket.a.tasks.AddToGalleryTask;
 
 /**
@@ -31,18 +33,28 @@ public class FragmentServerMode extends BaseClientServerFragment {
         fragment.setArguments(args);
         return fragment;
     }
+
     View.OnClickListener mBtnSaveClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            if(mImageUri != null)
-            new AddToGalleryTask(getActivity()).execute(mImageUri);
+            if (mImageUri != null)
+                new AddToGalleryTask(getActivity()).execute(mImageUri);
         }
     };
+    View.OnClickListener mBtnStopServiceClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            Intent stopIntent = new Intent(getActivity(), ServerService.class);
+            getActivity().stopService(stopIntent);
+        }
+    };
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle
             savedInstanceState) {
         return inflater.inflate(R.layout.fragment_server_mode, container, false);
     }
+
     @Override
     public void onViewCreated(View v, Bundle savedInstanceState) {
         if (savedInstanceState != null && !TextUtils.isEmpty(savedInstanceState.getString
@@ -53,6 +65,7 @@ public class FragmentServerMode extends BaseClientServerFragment {
         }
         initUI(v);
     }
+
     @Override
     public void onSaveInstanceState(Bundle outState) {
         Log.d(TAG, "onSaveInstanceState: URI " + mImageUri);
@@ -66,16 +79,31 @@ public class FragmentServerMode extends BaseClientServerFragment {
         mImageView = (ImageView) v.findViewById(R.id.imageView);
         mBtnSaveImage = (Button) v.findViewById(R.id.btn_save_image);
         mBtnSaveImage.setOnClickListener(mBtnSaveClickListener);
+        Button btnStopService = (Button) v.findViewById(R.id.btn_stop_service);
+        btnStopService.setOnClickListener(mBtnStopServiceClickListener);
         mImageProgress = (ProgressBar) v.findViewById(R.id.pb_image_progress);
         TextView tvServerAddress = (TextView) v.findViewById(R.id.tvServerAdr);
         tvServerAddress.setText(String.format(getString(R.string.server_address_w_format), new PreferencesManager
                 (getActivity()).getServerAddress()));
-        showImageProgress();
+        loadImageFromUri(mImageUri);
+        if (mImageUri == null) {
+            showImageProgress();
+        }else{
+            mBtnSaveImage.setVisibility(View.VISIBLE);
+        }
+
     }
 
     protected void onReciveImageEvent(EventImageReciered ev) {
-        mImageUri = ev.getImageUri();
+        mImageUri = new PreferencesManager(getActivity()).getDownLoadedImageUri();
+        Log.d(TAG, "onReciveImageEvent: " + mImageUri);
         loadImageFromUri(mImageUri);
         mBtnSaveImage.setVisibility(View.VISIBLE);
+    }
+    protected void onImageSavedEvent() {
+        mImageUri = new PreferencesManager(getActivity()).getDownLoadedImageUri();
+        Log.d(TAG, "onReciveImageEvent: " + mImageUri);
+        loadImageFromUri(mImageUri);
+        mBtnSaveImage.setVisibility(View.GONE);
     }
 }

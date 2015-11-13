@@ -11,7 +11,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -31,7 +30,6 @@ public class FragmentClientMode extends BaseClientServerFragment {
     public static final int SELECT_IMAGE_FROM_GALLERY = 9;
     private static final String TAG = "FragmentClientMode";
     private Uri mImageUri;
-    private EditText mEditTextPass;
 
     private View.OnClickListener mSelectImageClickListener = new View.OnClickListener() {
         @Override
@@ -45,15 +43,8 @@ public class FragmentClientMode extends BaseClientServerFragment {
     private View.OnClickListener mSendImageClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            Utils.hideKeyboard(getActivity(), mEditTextPass.getWindowToken());
             Intent request = new Intent(getActivity(), ClientService.class);
             Bundle bundle = new Bundle();
-            if (isPasswordValid()) {
-                bundle.putString(getString(R.string.bundle_key_msg_pass), mEditTextPass.getText().toString());
-            } else {
-                Utils.showToast(getActivity(), getString(R.string.error_input_pass));
-                return;
-            }
             bundle.putString(getString(R.string.bundle_key_inet_address), new PreferencesManager
                     (getActivity()).getServerAddress());
             if (mImageUri != null) {
@@ -122,18 +113,12 @@ public class FragmentClientMode extends BaseClientServerFragment {
         Button btnSendImage = (Button) v.findViewById(R.id.btn_send_image);
         btnSendImage.setOnClickListener(mSendImageClickListener);
         mImageProgress = (ProgressBar) v.findViewById(R.id.pb_image_progress);
-        mEditTextPass = (EditText) v.findViewById(R.id.editText);
         TextView tvServerAddress = (TextView) v.findViewById(R.id.tvServerAdr);
         tvServerAddress.setText(String.format(getString(R.string.server_address_w_format), new PreferencesManager
                 (getActivity()).getServerAddress()));
         loadImageFromUri(mImageUri);
     }
 
-
-    private boolean isPasswordValid() {
-        String pass = mEditTextPass.getText().toString();
-        return !TextUtils.isEmpty(pass);
-    }
 
     private void selectImageFromGallery() {
         Intent pickIntent = new Intent(Intent.ACTION_PICK,
@@ -155,5 +140,8 @@ public class FragmentClientMode extends BaseClientServerFragment {
                     processBitmapTask.execute(mImageUri);
             }
         }
+    }
+    protected void onSendedImageEvent() {
+        mImageView.setImageResource(R.mipmap.empty_src);
     }
 }

@@ -12,8 +12,10 @@ import com.garrytrue.workwithwebsocket.R;
 import com.garrytrue.workwithwebsocket.a.events.EventConnectionClosed;
 import com.garrytrue.workwithwebsocket.a.events.EventConnectionError;
 import com.garrytrue.workwithwebsocket.a.events.EventConnectionOpen;
+import com.garrytrue.workwithwebsocket.a.events.EventImageSended;
 import com.garrytrue.workwithwebsocket.a.events.EventProblemParsURI;
 import com.garrytrue.workwithwebsocket.a.interfaces.WebSocketCallback;
+import com.garrytrue.workwithwebsocket.a.utils.BitmapFileUtils;
 import com.garrytrue.workwithwebsocket.a.utils.Constants;
 import com.garrytrue.workwithwebsocket.a.utils.DecoderEncoderUtils;
 import com.garrytrue.workwithwebsocket.a.websockets.AppWebSocketClient;
@@ -25,6 +27,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 
+import javax.crypto.SecretKey;
+
 import de.greenrobot.event.EventBus;
 
 /**
@@ -32,8 +36,8 @@ import de.greenrobot.event.EventBus;
  */
 public class ClientService extends Service {
     private static final String TAG = "ClientService";
+    public static final int EMPTY_ARRAY_LENGHT = 0;
     private Uri mImageUri;
-    private String mPass;
     private AppWebSocketClient mSocketClient;
 
     private WebSocketCallback mCallback = new WebSocketCallback() {
@@ -66,16 +70,26 @@ public class ClientService extends Service {
     private Runnable messageSender = new Runnable() {
         @Override
         public void run() {
-            Log.d(TAG, "run: Pass was Sended "+ mPass);
-            mSocketClient.send(mPass);
-            Log.d(TAG, "run: Pass was Sended ");
+            SecretKey key = null;
+            String strKey = null;
             byte[] imArr = getImageByteArray(mImageUri);
-//            byte [] encodeArr = DecoderEncoderUtils.encodeByteArray(imArr);
-            if (imArr != null) {
-                Log.d(TAG, "run: EncodedArrayLenght " + imArr.length);
-                mSocketClient.send(imArr);
-                stopSelf();
+            if (imArr.length > EMPTY_ARRAY_LENGHT) {
+                try {
+                    key = DecoderEncoderUtils.generateKey();
+                    strKey = DecoderEncoderUtils.keyToString(key);
+                    Log.d(TAG, "run: STR KEY " + strKey);
+                    mSocketClient.send(strKey);
+                    byte[] encodeArr = DecoderEncoderUtils.encodeByteArray(imArr, key);
+                    mSocketClient.send(encodeArr);
+                } catch (Exception ex) {
+                    // TODO: 13.11.15 Problem with encode. Notify User.
+                    Log.e(TAG, "MessageSender ", ex);
+                }
+            } else {
+                // TODO: 13.11.15 Havent image. Notify User.
             }
+            EventBus.getDefault().post(new EventImageSended());
+stopSelf();
         }
     };
 
@@ -94,13 +108,12 @@ public class ClientService extends Service {
                     Log.d(TAG, "onStartCommand: Address " + address);
                     mImageUri = Uri.parse(bundle.getString(getString(R.string
                             .bundle_key_msg_data)));
-                    mPass = bundle.getString(getString(R.string.bundle_key_msg_pass));
-                        try {
-                            initWebSocketClient(intent.getStringExtra(getString(R.string.bundle_key_inet_address)));
-                        } catch (URISyntaxException e) {
-                            Log.e(TAG, "onStartCommand: ", e);
-                            // TODO: 11.11.15 Notify UI about problem with server address
-                            EventBus.getDefault().post(new EventProblemParsURI());
+                    try {
+                        initWebSocketClient(intent.getStringExtra(getString(R.string.bundle_key_inet_address)));
+                    } catch (URISyntaxException e) {
+                        Log.e(TAG, "onStartCommand: ", e);
+                        // TODO: 11.11.15 Notify UI about problem with server address
+                        EventBus.getDefault().post(new EventProblemParsURI());
                     }
                 }
                 break;
@@ -127,6 +140,10 @@ public class ClientService extends Service {
     public void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "onDestroy: ");
+        BitmapFileUtils.deleteCachedFiles(this);
+        if(mSocketClient != null && mSocketClient.isSocketOpen())
+        mSocketClient.close();
+        super.onDestroy();
     }
 
     private void initWebSocketClient(String address) throws URISyntaxException {

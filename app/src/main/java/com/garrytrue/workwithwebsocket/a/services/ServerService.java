@@ -1,6 +1,7 @@
 package com.garrytrue.workwithwebsocket.a.services;
 
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.net.Uri;
@@ -10,18 +11,24 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.garrytrue.workwithwebsocket.R;
+import com.garrytrue.workwithwebsocket.a.activities.MainActivity;
 import com.garrytrue.workwithwebsocket.a.events.EventConnectionClosed;
 import com.garrytrue.workwithwebsocket.a.events.EventConnectionError;
 import com.garrytrue.workwithwebsocket.a.events.EventImageReciered;
 import com.garrytrue.workwithwebsocket.a.interfaces.OnTaskCompliteListener;
 import com.garrytrue.workwithwebsocket.a.interfaces.WebSocketCallback;
+import com.garrytrue.workwithwebsocket.a.preference.PreferencesManager;
 import com.garrytrue.workwithwebsocket.a.utils.BitmapFileUtils;
+import com.garrytrue.workwithwebsocket.a.utils.DecoderEncoderUtils;
 import com.garrytrue.workwithwebsocket.a.websockets.AppWebSocketServer;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
+
+import javax.crypto.SecretKey;
 
 import de.greenrobot.event.EventBus;
 
@@ -30,13 +37,14 @@ import de.greenrobot.event.EventBus;
  */
 public class ServerService extends Service {
     private static final String TAG = "ServerService";
-    private String mServerAddress;
-    private AppWebSocketServer mWebSocketServer;
-    private WebSocketCallback mCallback = new WebSocketCallback() {
+    private ByfferWorker mByfferWorker = new ByfferWorker();
+    private  AppWebSocketServer mWebSocketServer;
+    private WebSocketCallback mServerCallback = new WebSocketCallback() {
         @Override
         public void gotMessage(ByteBuffer buffer) {
-            sendNotification();
-            ByfferWorker mByfferWorker = new ByfferWorker(buffer, mTaskCompliteListener);
+            Log.d(TAG, "gotMessage: Got ByteBuffer");
+            mByfferWorker.setByteBuffer(buffer);
+            mByfferWorker.setTaskCompliteListener(mTaskCompliteListener);
             mByfferWorker.run();
         }
 
@@ -58,30 +66,33 @@ public class ServerService extends Service {
 
         @Override
         public void gotMessage(String msg) {
+            Log.d(TAG, "gotMessage: Got Key");
+            mByfferWorker.setKey(msg);
 
         }
     };
     private OnTaskCompliteListener mTaskCompliteListener = new OnTaskCompliteListener() {
         @Override
         public void onTaskComplited(Uri uri) {
+            sendNotification();
             Log.d(TAG, "onTaskComplited: FILE URI " + uri);
-            // TODO: 11.11.15 Need notify UI about new file
-            EventBus.getDefault().post(new EventImageReciered(uri));
+            new PreferencesManager(getApplicationContext()).putDownloadedImageUri(uri);
+            EventBus.getDefault().post(new EventImageReciered());
         }
     };
 
 
     public int onStartCommand(Intent intent, int flag, int startId) {
         Log.d(TAG, "onStartCommand() called with: " + "intent = [" + intent + "], flag = [" + flag + "], startId = [" + startId + "]");
-        mServerAddress = intent.getStringExtra(getString(R
+        String serverAddress = intent.getStringExtra(getString(R
                 .string.bundle_key_inet_address));
-        Log.d(TAG, "onStartCommand: Uri for connection " + mServerAddress);
-        initWebSocketServer(mServerAddress);
+        Log.d(TAG, "onStartCommand: Uri for connection " + serverAddress);
+        initWebSocketServer(serverAddress);
         return START_NOT_STICKY;
     }
 
     private void initWebSocketServer(String address) {
-        mWebSocketServer = new AppWebSocketServer(getSocketAddress(address), mCallback);
+        mWebSocketServer = new AppWebSocketServer(getSocketAddress(address), mServerCallback);
         mWebSocketServer.start();
     }
 
@@ -99,34 +110,72 @@ public class ServerService extends Service {
     public IBinder onBind(Intent intent) {
         return null;
     }
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "onDestroy: ");
+        BitmapFileUtils.deleteCachedFiles(this);
+        if(mWebSocketServer != null)
+            try {
+                mWebSocketServer.stop();
+            } catch (IOException e) {
+                Log.e(TAG, "onDestroy: ", e);
+            } catch (InterruptedException e) {
+                Log.e(TAG, "onDestroy: ", e);
+            }
+        super.onDestroy();
+    }
+
 
     private class ByfferWorker implements Runnable {
         private ByteBuffer mByteBuffer;
         private WeakReference<OnTaskCompliteListener> mTaskCompliteListenerRef;
+        private String mStrKey;
 
-        public ByfferWorker(ByteBuffer buffer, OnTaskCompliteListener listener) {
+        public void setByteBuffer(ByteBuffer buffer) {
             mByteBuffer = buffer;
+        }
+
+        public void setTaskCompliteListener(OnTaskCompliteListener listener) {
             mTaskCompliteListenerRef = new WeakReference<>(listener);
         }
 
-        private Uri saveBitmapToCache(ByteBuffer byteBuffer) {
+        public void setKey(String key) {
+            mStrKey = key;
+        }
+
+        public ByfferWorker() {
+        }
+
+        private Uri saveBitmapToCache(byte[] byteArr) {
             File file = new File(getApplicationContext().getCacheDir(),
                     BitmapFileUtils.TEMP_DOWNLOADED_FILE_NAME);
             if (file.exists()) {
                 Log.d(TAG, "doInBackground: file is exist");
                 file.delete();
             }
-            BitmapFileUtils.saveToFile(byteBuffer.array(), new File(getApplicationContext()
+            BitmapFileUtils.saveToFile(new File(getApplicationContext()
                     .getCacheDir(),
-                    BitmapFileUtils.TEMP_DOWNLOADED_FILE_NAME));
+                    BitmapFileUtils.TEMP_DOWNLOADED_FILE_NAME), byteArr);
             return Uri.fromFile(file);
         }
 
         @Override
         public void run() {
-            Uri uri = saveBitmapToCache(mByteBuffer);
-            if (mTaskCompliteListenerRef != null) {
-                mTaskCompliteListenerRef.get().onTaskComplited(uri);
+//            if (TextUtils.isEmpty(mStrKey) || mByteBuffer == null || mTaskCompliteListenerRef ==
+//                    null) {
+//                throw new IllegalArgumentException("Firstly set key, ByteBuffer and " +
+//                        "OnTaskCompliteListener");
+//            }
+            try {
+                SecretKey key = DecoderEncoderUtils.keyFromString(mStrKey);
+                byte[] decodedArr = DecoderEncoderUtils.decodeByteArray(mByteBuffer.array(), key);
+                Uri uri = saveBitmapToCache(decodedArr);
+                if (mTaskCompliteListenerRef != null) {
+                    mTaskCompliteListenerRef.get().onTaskComplited(uri);
+                }
+            } catch (Exception ex) {
+                Log.e(TAG, "ByfferWorker: ", ex);
+                // TODO: 13.11.15 Notify User about problem with decode image
             }
         }
     }
@@ -136,10 +185,22 @@ public class ServerService extends Service {
         builder.setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle(getString(R.string.msg_got_new_image))
                 .setContentText(getString(R.string.msg_receive_image))
+                .setContentIntent(prepareIntent())
+                .setAutoCancel(true)
                 .setSound(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.incom_msg));
         NotificationManager mNotifyMgr =
                 (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         mNotifyMgr.notify(0, builder.build());
+    }
+
+    private PendingIntent prepareIntent() {
+        Intent resultIntent = new Intent(this, MainActivity.class);
+        return PendingIntent.getActivity(
+                this,
+                0,
+                resultIntent,
+                PendingIntent.FLAG_NO_CREATE
+        );
     }
 }
 

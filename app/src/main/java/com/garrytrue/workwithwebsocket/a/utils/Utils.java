@@ -12,7 +12,10 @@ import java.util.regex.Pattern;
 /**
  * Created by TorbaIgor (garrytrue@yandex.ru) on 11.11.15.
  */
-public final class Utils {
+public class Utils {
+    private Utils() {
+        new AssertionError();
+    }
 
     public static final String IP_REGEXP = "(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}):(\\d{1,5})";
 

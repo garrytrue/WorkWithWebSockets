@@ -2,7 +2,7 @@ package com.garrytrue.workwithwebsocket.a.preference;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
+import android.net.Uri;
 
 import com.garrytrue.workwithwebsocket.R;
 
@@ -20,6 +20,7 @@ public class PreferencesManager {
                 .getDefaultSharedPreferences(context.getApplicationContext());
         mSettingsEditor = mCustomPreferences.edit();
     }
+
     public void putServerAddress(String address) {
         mSettingsEditor.putString(mContext.getString(R.string.pref_key_server_address), address)
                 .commit();
@@ -28,5 +29,15 @@ public class PreferencesManager {
     public String getServerAddress() {
         return mCustomPreferences.getString(mContext.getString(R.string.pref_key_server_address),
                 "");
+    }
+
+    public void putDownloadedImageUri(Uri uri) {
+        mSettingsEditor.putString(mContext.getString(R.string.pref_key_downloaded_image_uri), uri.toString())
+                .commit();
+    }
+
+    public Uri getDownLoadedImageUri() {
+        return Uri.parse(mCustomPreferences.getString(mContext.getString(R.string.pref_key_downloaded_image_uri),
+                ""));
     }
 }
