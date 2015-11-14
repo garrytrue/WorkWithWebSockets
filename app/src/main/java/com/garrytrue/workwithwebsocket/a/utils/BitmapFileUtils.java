@@ -16,23 +16,22 @@ import java.util.Date;
  * Created by TorbaIgor (garrytrue@yandex.ru) on 10.11.15.
  */
 public class BitmapFileUtils {
+    private static final int BUFFER_SIZE = 1024;
+    private static final String FILE_SUFFIX = ".jpg";
     public static final int IMAGE_MAX_SIZE = 1024;
-    public static final String FILE_SUFFIX = ".jpg";
     public static final String PATH_PREFIX = "file:";
     public static final String TEMP_BMP_FILE_NAME = "temp_cropped_file" + FILE_SUFFIX;
     public static final String DOWNLOADED_BMP_FILE_NAME = "file_downloded_";
     public static final String TEMP_DOWNLOADED_FILE_NAME = "temp_downloaded_file" + FILE_SUFFIX;
-    private static final int BUFFER_SIZE = 1024;
+
 
     private BitmapFileUtils(){
         throw new AssertionError();
-
     }
 
     public static String generateBmpFileName() {
-        return new StringBuilder().append(DOWNLOADED_BMP_FILE_NAME).append(new SimpleDateFormat
-                ("yyyyMMdd_HHmmss").format(new Date())).toString();
-
+        return new StringBuilder().append(DOWNLOADED_BMP_FILE_NAME)
+                .append(new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date())).toString();
     }
 
     public static void saveToFile(File file, Bitmap bitmap) throws IOException {
@@ -41,25 +40,12 @@ public class BitmapFileUtils {
         out.close();
     }
 
-    public static void saveToFile(File file, byte[] array) {
+    public static void saveToFile(File file, byte[] array) throws IOException{
         FileOutputStream out = null;
-
-        try {
             out = new FileOutputStream(file);
             out.write(array);
             out.flush();
             out.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (out != null) {
-                try {
-                    out.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
     }
 
     public static File createImageFile() throws IOException{

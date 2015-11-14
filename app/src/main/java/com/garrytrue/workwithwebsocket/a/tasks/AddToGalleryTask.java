@@ -22,9 +22,8 @@ import de.greenrobot.event.EventBus;
  * Created by TorbaIgor (garrytrue@yandex.ru) on 12.11.15.
  */
 public class AddToGalleryTask extends AsyncTask<Uri, Void, Void> {
-
-    private WeakReference<Context> mContextRef;
     private static final String TAG = "AddToGalleryTask";
+    private WeakReference<Context> mContextRef;
 
     public AddToGalleryTask(Context context) {
         mContextRef = new WeakReference<>(context);
@@ -38,6 +37,7 @@ public class AddToGalleryTask extends AsyncTask<Uri, Void, Void> {
         } catch (IOException e) {
             Log.e(TAG, "doInBackground: ", e);
             cancel(true);
+            return null;
         }
         if (!isCancelled()) {
             FileOutputStream fileOutputStream;
@@ -75,8 +75,7 @@ public class AddToGalleryTask extends AsyncTask<Uri, Void, Void> {
 
     private void galleryAddPic(Context c, String path) {
         Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-        File f = new File(path);
-        Uri contentUri = Uri.fromFile(f);
+        Uri contentUri = Uri.fromFile(new File(path));
         Log.d(TAG, "galleryAddPic: " + contentUri);
         mediaScanIntent.setData(contentUri);
         c.sendBroadcast(mediaScanIntent);

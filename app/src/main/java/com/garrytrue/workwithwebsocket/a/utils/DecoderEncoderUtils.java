@@ -18,7 +18,7 @@ import javax.crypto.spec.SecretKeySpec;
  */
 public class DecoderEncoderUtils {
 
-    private static final int KEYLENGHT = 128;
+    private static final int KEY_LENGHT = 128;
     private static final String ALGORITHM = "AES";
 
     private DecoderEncoderUtils() {
@@ -39,7 +39,7 @@ public class DecoderEncoderUtils {
 
     public static SecretKey generateKey() throws NoSuchAlgorithmException {
         KeyGenerator keyGen = KeyGenerator.getInstance(ALGORITHM);
-        keyGen.init(KEYLENGHT);
+        keyGen.init(KEY_LENGHT);
         return keyGen.generateKey();
     }
 

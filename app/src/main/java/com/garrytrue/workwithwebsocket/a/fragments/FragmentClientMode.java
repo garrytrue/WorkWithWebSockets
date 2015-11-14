@@ -16,7 +16,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.garrytrue.workwithwebsocket.R;
-import com.garrytrue.workwithwebsocket.a.interfaces.OnTaskCompliteListener;
+import com.garrytrue.workwithwebsocket.a.interfaces.OnTaskCompleteListener;
 import com.garrytrue.workwithwebsocket.a.preference.PreferencesManager;
 import com.garrytrue.workwithwebsocket.a.services.ClientService;
 import com.garrytrue.workwithwebsocket.a.tasks.ProcessBitmapTask;
@@ -61,7 +61,7 @@ public class FragmentClientMode extends BaseClientServerFragment {
         }
     };
 
-    private OnTaskCompliteListener mOnTaskCompliteListener = new OnTaskCompliteListener() {
+    private OnTaskCompleteListener mOnTaskCompleteListener = new OnTaskCompleteListener() {
         @Override
         public void onTaskComplited(Uri uri) {
             Log.d(TAG, "onTaskComplited: URI " + uri);
@@ -136,7 +136,7 @@ public class FragmentClientMode extends BaseClientServerFragment {
                     mImageUri = data.getData();
                     Log.d(TAG, "onActivityResult: Image Uri " + mImageUri);
                     ProcessBitmapTask processBitmapTask = new ProcessBitmapTask(getActivity());
-                    processBitmapTask.setTaskCompliteLiistener(mOnTaskCompliteListener);
+                    processBitmapTask.setTaskCompleteListener(mOnTaskCompleteListener);
                     processBitmapTask.execute(mImageUri);
             }
         }

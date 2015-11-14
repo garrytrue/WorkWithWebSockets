@@ -13,16 +13,14 @@ import java.util.regex.Pattern;
  * Created by TorbaIgor (garrytrue@yandex.ru) on 11.11.15.
  */
 public class Utils {
+    public static final String IP_REGEXP = "(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}):(\\d{1,5})";
+
     private Utils() {
         new AssertionError();
     }
 
-    public static final String IP_REGEXP = "(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}):(\\d{1,5})";
-
     public static boolean isAddressValid(String param) {
-        Pattern pattern = Pattern.compile(IP_REGEXP);
-        Matcher matcher = pattern.matcher(param);
-        return matcher.matches();
+        return Pattern.compile(IP_REGEXP).matcher(param).matches();
     }
 
     public static void hideKeyboard(Activity activity,

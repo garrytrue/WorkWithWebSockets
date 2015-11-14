@@ -14,8 +14,9 @@ import com.garrytrue.workwithwebsocket.R;
 import com.garrytrue.workwithwebsocket.a.activities.MainActivity;
 import com.garrytrue.workwithwebsocket.a.events.EventConnectionClosed;
 import com.garrytrue.workwithwebsocket.a.events.EventConnectionError;
+import com.garrytrue.workwithwebsocket.a.events.EventHaveProblem;
 import com.garrytrue.workwithwebsocket.a.events.EventImageReciered;
-import com.garrytrue.workwithwebsocket.a.interfaces.OnTaskCompliteListener;
+import com.garrytrue.workwithwebsocket.a.interfaces.OnTaskCompleteListener;
 import com.garrytrue.workwithwebsocket.a.interfaces.WebSocketCallback;
 import com.garrytrue.workwithwebsocket.a.preference.PreferencesManager;
 import com.garrytrue.workwithwebsocket.a.utils.BitmapFileUtils;
@@ -37,15 +38,16 @@ import de.greenrobot.event.EventBus;
  */
 public class ServerService extends Service {
     private static final String TAG = "ServerService";
-    private BufferWorker mByfferWorker = new BufferWorker();
-    private  AppWebSocketServer mWebSocketServer;
+    private BufferWorker mBufferWorker = new BufferWorker();
+    private AppWebSocketServer mWebSocketServer;
+
     private WebSocketCallback mServerCallback = new WebSocketCallback() {
         @Override
         public void onMessageRecieve(ByteBuffer buffer) {
             Log.d(TAG, "onMessageRecieve: Got ByteBuffer");
-            mByfferWorker.setByteBuffer(buffer);
-            mByfferWorker.setTaskCompliteListener(mTaskCompliteListener);
-            mByfferWorker.run();
+            mBufferWorker.setByteBuffer(buffer);
+            mBufferWorker.setTaskCompliteListener(mTaskCompliteListener);
+            mBufferWorker.run();
         }
 
         @Override
@@ -67,11 +69,11 @@ public class ServerService extends Service {
         @Override
         public void onMessageRecieve(String msg) {
             Log.d(TAG, "onMessageRecieve: Got Key");
-            mByfferWorker.setKey(msg);
+            mBufferWorker.setKey(msg);
 
         }
     };
-    private OnTaskCompliteListener mTaskCompliteListener = new OnTaskCompliteListener() {
+    private OnTaskCompleteListener mTaskCompliteListener = new OnTaskCompleteListener() {
         @Override
         public void onTaskComplited(Uri uri) {
             sendNotification();
@@ -100,8 +102,7 @@ public class ServerService extends Service {
         String[] arr = address.split(":");
         Log.d(TAG, "getSocketAddress: " + arr[0] + arr[1]);
         Integer port = Integer.parseInt(arr[1]);
-        InetSocketAddress addess = new InetSocketAddress(arr[0], port);
-        Log.d(TAG, "INETSOCKETADDRESS: " + addess.toString());
+        Log.d(TAG, "INETSOCKETADDRESS: " + new InetSocketAddress(arr[0], port).toString());
         return new InetSocketAddress(arr[0], port);
     }
 
@@ -114,7 +115,7 @@ public class ServerService extends Service {
     public void onDestroy() {
         Log.d(TAG, "onDestroy: ");
         BitmapFileUtils.deleteCachedFiles(this);
-        if(mWebSocketServer != null)
+        if (mWebSocketServer != null)
             try {
                 mWebSocketServer.stop();
             } catch (IOException e) {
@@ -128,14 +129,14 @@ public class ServerService extends Service {
 
     private class BufferWorker implements Runnable {
         private ByteBuffer mByteBuffer;
-        private WeakReference<OnTaskCompliteListener> mTaskCompliteListenerRef;
+        private WeakReference<OnTaskCompleteListener> mTaskCompliteListenerRef;
         private String mStrKey;
 
         public void setByteBuffer(ByteBuffer buffer) {
             mByteBuffer = buffer;
         }
 
-        public void setTaskCompliteListener(OnTaskCompliteListener listener) {
+        public void setTaskCompliteListener(OnTaskCompleteListener listener) {
             mTaskCompliteListenerRef = new WeakReference<>(listener);
         }
 
@@ -153,19 +154,19 @@ public class ServerService extends Service {
                 Log.d(TAG, "doInBackground: file is exist");
                 file.delete();
             }
-            BitmapFileUtils.saveToFile(new File(getApplicationContext()
-                    .getCacheDir(),
-                    BitmapFileUtils.TEMP_DOWNLOADED_FILE_NAME), byteArr);
-            return Uri.fromFile(file);
+            try {
+                BitmapFileUtils.saveToFile(new File(getApplicationContext()
+                        .getCacheDir(),
+                        BitmapFileUtils.TEMP_DOWNLOADED_FILE_NAME), byteArr);
+                return Uri.fromFile(file);
+            }catch (IOException ex){
+                EventBus.getDefault().post(new EventHaveProblem(getString(R.string.err_could_not_save_img)));
+            }
+            return null;
         }
 
         @Override
         public void run() {
-//            if (TextUtils.isEmpty(mStrKey) || mByteBuffer == null || mTaskCompliteListenerRef ==
-//                    null) {
-//                throw new IllegalArgumentException("Firstly set key, ByteBuffer and " +
-//                        "OnTaskCompliteListener");
-//            }
             try {
                 SecretKey key = DecoderEncoderUtils.keyFromString(mStrKey);
                 byte[] decodedArr = DecoderEncoderUtils.decodeByteArray(mByteBuffer.array(), key);
@@ -176,6 +177,7 @@ public class ServerService extends Service {
             } catch (Exception ex) {
                 Log.e(TAG, "BufferWorker: ", ex);
                 // TODO: 13.11.15 Notify User about problem with decode image
+                EventBus.getDefault().post(new EventHaveProblem(getString(R.string.err_could_not_decode_image)));
             }
         }
     }

@@ -29,10 +29,10 @@ public class MainActivity extends AppCompatActivity implements IBtnClickListener
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initUI();
-        String savedValue = savedInstanceState.getString
-                (getString(R.string.bundle_key_current_fragment_tag));
-        if (savedInstanceState != null && !TextUtils.isEmpty(savedValue)) {
-            handleSavedState(savedValue);
+        if (savedInstanceState != null && !TextUtils.isEmpty( savedInstanceState.getString
+                (getString(R.string.bundle_key_current_fragment_tag)))) {
+            handleSavedState( savedInstanceState.getString
+                    (getString(R.string.bundle_key_current_fragment_tag)));
         } else {
             showModeFragment(FragmentSelectWorkMode.newInstance(), getString(R.string
                     .fragment_select_work_mode_tag));

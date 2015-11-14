@@ -23,4 +23,5 @@
     <string name="err_could_not_decode_image">Could not decode image</string>
     <string name="err_could_not_encode_image">Could not encode image</string>
     <string name="err_could_not_generate_key">Could not generate key</string>
+    <string name="err_could_not_save_img">Could not save image</string>
 </resources>

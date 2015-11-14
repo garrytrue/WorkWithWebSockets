@@ -27,9 +27,6 @@ public class AppWebSocketServer extends WebSocketServer {
     @Override
     public void onOpen(WebSocket conn, ClientHandshake handshake) {
         Log.d(TAG, "onOpen() called with: " + "conn = [" + conn + "], handshake = [" + handshake + "]");
-        if (mCallback != null) {
-            mCallback.get().onOpenConnection();
-        }
     }
 
     @Override

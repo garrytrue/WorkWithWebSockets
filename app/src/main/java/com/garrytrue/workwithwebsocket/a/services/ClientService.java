@@ -116,23 +116,21 @@ public class ClientService extends Service {
     }
 
     public int onStartCommand(Intent intent, int flag, int startId) {
-        switch (intent.getAction()) {
-            case Constants.ACTION_START_CONNECTION:
-                Bundle bundle = intent.getExtras();
-                if (bundle != null) {
-                    String address = bundle.getString(getString(R.string.bundle_key_inet_address));
-                    Log.d(TAG, "onStartCommand: Address " + address);
-                    mImageUri = Uri.parse(bundle.getString(getString(R.string
-                            .bundle_key_msg_data)));
-                    try {
-                        initWebSocketClient(intent.getStringExtra(getString(R.string.bundle_key_inet_address)));
-                    } catch (URISyntaxException e) {
-                        Log.e(TAG, "onStartCommand: ", e);
-                        EventBus.getDefault().post(new EventHaveProblem(getString(R.string.msg_wrong_uri)));
-                    }
-                }
-                break;
+        if (intent.getAction() == Constants.ACTION_START_CONNECTION && intent.getExtras() != null) {
+            Bundle bundle = intent.getExtras();
+            String address = bundle.getString(getString(R.string.bundle_key_inet_address));
+            Log.d(TAG, "onStartCommand: Address " + address);
+            mImageUri = Uri.parse(bundle.getString(getString(R.string
+                    .bundle_key_msg_data)));
+            try {
+                initWebSocketClient(intent.getStringExtra(getString(R.string.bundle_key_inet_address)));
+            } catch (URISyntaxException e) {
+                Log.e(TAG, "onStartCommand: ", e);
+                EventBus.getDefault().post(new EventHaveProblem(getString(R.string.msg_wrong_uri)));
+                stopSelf();
+            }
         }
+
         return START_NOT_STICKY;
     }
 
@@ -162,9 +160,7 @@ public class ClientService extends Service {
     }
 
     private void initWebSocketClient(String address) throws URISyntaxException {
-        URI uri;
-        uri = new URI("ws://" + address);
-        mSocketClient = new AppWebSocketClient(uri, mCallback);
+        mSocketClient = new AppWebSocketClient(new URI("ws://" + address), mCallback);
         mSocketClient.connect();
     }
 
