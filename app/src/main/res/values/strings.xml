@@ -19,4 +19,8 @@
     <string name="msg_receive_image">Image was received</string>
     <string name="preferred_ip">Server Preferred IP: %s</string>
     <string name="preferred_port">Port: 8887</string>
+    <string name="err_could_not_read_image">Could not read image</string>
+    <string name="err_could_not_decode_image">Could not decode image</string>
+    <string name="err_could_not_encode_image">Could not encode image</string>
+    <string name="err_could_not_generate_key">Could not generate key</string>
 </resources>

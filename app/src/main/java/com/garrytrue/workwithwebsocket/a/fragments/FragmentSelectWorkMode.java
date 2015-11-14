@@ -108,8 +108,8 @@ public class FragmentSelectWorkMode extends Fragment {
     }
 
     private String wifiIpAddress() {
-        WifiManager wifiManager = (WifiManager) getActivity().getSystemService(Activity.WIFI_SERVICE);
-        int ipAddress = wifiManager.getConnectionInfo().getIpAddress();
+        int ipAddress = ((WifiManager) getActivity().getSystemService(Activity
+                .WIFI_SERVICE)).getConnectionInfo().getIpAddress();
 
         // Convert little-endian to big-endianif needed
         if (ByteOrder.nativeOrder().equals(ByteOrder.LITTLE_ENDIAN)) {
@@ -122,7 +122,7 @@ public class FragmentSelectWorkMode extends Fragment {
         try {
             ipAddressString = InetAddress.getByAddress(ipByteArray).getHostAddress();
         } catch (UnknownHostException ex) {
-            Log.e("WIFIIP", "Unable to get host address.");
+            Log.e(TAG, "wifiIpAddress: ", ex);
             ipAddressString = null;
         }
 

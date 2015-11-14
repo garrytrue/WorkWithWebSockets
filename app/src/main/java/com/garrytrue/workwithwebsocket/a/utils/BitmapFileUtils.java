@@ -22,7 +22,6 @@ public class BitmapFileUtils {
     public static final String TEMP_BMP_FILE_NAME = "temp_cropped_file" + FILE_SUFFIX;
     public static final String DOWNLOADED_BMP_FILE_NAME = "file_downloded_";
     public static final String TEMP_DOWNLOADED_FILE_NAME = "temp_downloaded_file" + FILE_SUFFIX;
-
     private static final int BUFFER_SIZE = 1024;
 
     private BitmapFileUtils(){

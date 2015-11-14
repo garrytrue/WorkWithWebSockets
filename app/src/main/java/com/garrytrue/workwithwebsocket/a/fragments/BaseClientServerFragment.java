@@ -11,10 +11,10 @@ import com.garrytrue.workwithwebsocket.R;
 import com.garrytrue.workwithwebsocket.a.events.EventConnectionClosed;
 import com.garrytrue.workwithwebsocket.a.events.EventConnectionError;
 import com.garrytrue.workwithwebsocket.a.events.EventConnectionOpen;
+import com.garrytrue.workwithwebsocket.a.events.EventHaveProblem;
 import com.garrytrue.workwithwebsocket.a.events.EventImageReciered;
 import com.garrytrue.workwithwebsocket.a.events.EventImageSaved;
 import com.garrytrue.workwithwebsocket.a.events.EventImageSended;
-import com.garrytrue.workwithwebsocket.a.events.EventProblemParsURI;
 import com.garrytrue.workwithwebsocket.a.utils.Utils;
 import com.squareup.picasso.Picasso;
 
@@ -57,10 +57,6 @@ public class BaseClientServerFragment extends Fragment {
         Utils.showToast(getActivity(), getString(R.string.msg_connection_is_open));
     }
 
-    public void onEventMainThread(EventProblemParsURI event) {
-        Utils.showToast(getActivity(), getString(R.string.msg_wrong_uri));
-    }
-
     public void onEventMainThread(EventConnectionClosed event) {
         Utils.showToast(getActivity(), event.getReason());
     }
@@ -78,6 +74,10 @@ public class BaseClientServerFragment extends Fragment {
     }
     public void onEventMainThread(EventImageSaved event) {
         onImageSavedEvent();
+    }
+
+    public void onEventMainThread(EventHaveProblem event) {
+        Utils.showToast(getActivity(), event.getMessage());
     }
 
     protected void onImageSavedEvent() {

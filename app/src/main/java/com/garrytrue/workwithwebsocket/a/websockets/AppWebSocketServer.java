@@ -28,7 +28,7 @@ public class AppWebSocketServer extends WebSocketServer {
     public void onOpen(WebSocket conn, ClientHandshake handshake) {
         Log.d(TAG, "onOpen() called with: " + "conn = [" + conn + "], handshake = [" + handshake + "]");
         if (mCallback != null) {
-            mCallback.get().gotOpenConnection();
+            mCallback.get().onOpenConnection();
         }
     }
 
@@ -36,7 +36,7 @@ public class AppWebSocketServer extends WebSocketServer {
     public void onClose(WebSocket conn, int code, String reason, boolean remote) {
         Log.d(TAG, "onClose() called with: " + "conn = [" + conn + "], code = [" + code + "], reason = [" + reason + "], remote = [" + remote + "]");
         if (mCallback != null) {
-            mCallback.get().gotCloseConnection(reason);
+            mCallback.get().onCloseConnection(reason);
         }
     }
 
@@ -45,7 +45,7 @@ public class AppWebSocketServer extends WebSocketServer {
         Log.d(TAG, "onMessage() called with: " + "conn = [" + conn + "], message = [" + message + "]");
         if (mCallback != null) {
             Log.d(TAG, "onMessage: GOT_FUCK_MSG");
-            mCallback.get().gotMessage(message);
+            mCallback.get().onMessageRecieve(message);
         }
     }
 
@@ -56,7 +56,7 @@ public class AppWebSocketServer extends WebSocketServer {
         Log.d(TAG, "onMessage: SERVER Buffer Lenght " + data.array().length);
         if (mCallback != null) {
             Log.d(TAG, "onMessage: GOT_FUCK_MSG");
-            mCallback.get().gotMessage(data);
+            mCallback.get().onMessageRecieve(data);
         }
     }
 
@@ -64,7 +64,7 @@ public class AppWebSocketServer extends WebSocketServer {
     public void onError(WebSocket conn, Exception ex) {
         Log.d(TAG, "onError() called with: " + "conn = [" + conn + "], ex = [" + ex + "]");
         if (mCallback != null) {
-            mCallback.get().gotError(ex);
+            mCallback.get().onError(ex);
         }
     }
 }

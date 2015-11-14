@@ -2,10 +2,14 @@ package com.garrytrue.workwithwebsocket.a.utils;
 
 import android.util.Base64;
 
+import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.KeyGenerator;
+import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
@@ -13,21 +17,29 @@ import javax.crypto.spec.SecretKeySpec;
  * Created by TorbaIgor (garrytrue@yandex.ru) on 12.11.15.
  */
 public class DecoderEncoderUtils {
+
+    private static final int KEYLENGHT = 128;
+    private static final String ALGORITHM = "AES";
+
     private DecoderEncoderUtils() {
         new AssertionError();
     }
 
-    private static final String ALGORITHM = "AES";
 
-    public static byte[] encodeByteArray(byte[] array, SecretKey key) throws Exception {
-        Cipher chiper = Cipher.getInstance(ALGORITHM);
-        chiper.init(Cipher.ENCRYPT_MODE, key);
-        return chiper.doFinal(array);
+    public static byte[] encodeByteArray(byte[] array, SecretKey key) throws InvalidKeyException{
+       try {
+           Cipher chiper = Cipher.getInstance(ALGORITHM);
+           chiper.init(Cipher.ENCRYPT_MODE, key);
+           return chiper.doFinal(array);
+       }catch (InvalidKeyException | NoSuchPaddingException | NoSuchAlgorithmException |
+                BadPaddingException| IllegalBlockSizeException ex){
+           throw new  InvalidKeyException("Problem encode file. See DecoderEncoderUtils.encodeByteArray");
+       }
     }
 
     public static SecretKey generateKey() throws NoSuchAlgorithmException {
         KeyGenerator keyGen = KeyGenerator.getInstance(ALGORITHM);
-        keyGen.init(128);
+        keyGen.init(KEYLENGHT);
         return keyGen.generateKey();
     }
 
@@ -43,11 +55,7 @@ public class DecoderEncoderUtils {
     }
 
     public static String keyToString(SecretKey key) {
-        String stringKey = "";
-        if (key != null) {
-            stringKey = Base64.encodeToString(key.getEncoded(), Base64.DEFAULT);
-        }
-        return stringKey;
+        return (key != null) ? Base64.encodeToString(key.getEncoded(), Base64.DEFAULT) : "";
     }
 
 }

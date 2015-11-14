@@ -2,9 +2,7 @@ package com.garrytrue.workwithwebsocket.a.activities;
 
 import android.app.Fragment;
 import android.app.FragmentTransaction;
-import android.content.Context;
 import android.content.Intent;
-import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -21,14 +19,9 @@ import com.garrytrue.workwithwebsocket.a.preference.PreferencesManager;
 import com.garrytrue.workwithwebsocket.a.services.ServerService;
 import com.garrytrue.workwithwebsocket.a.utils.Utils;
 
-import java.math.BigInteger;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.nio.ByteOrder;
-
 public class MainActivity extends AppCompatActivity implements IBtnClickListener {
-    private RelativeLayout mContainer;
     private static final String TAG = "MainActivity";
+    private RelativeLayout mContainer;
 
 
     @Override
@@ -36,20 +29,26 @@ public class MainActivity extends AppCompatActivity implements IBtnClickListener
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initUI();
-        if (savedInstanceState != null && !TextUtils.isEmpty(savedInstanceState.getString
-                (getString(R.string.bundle_key_current_fragment_tag)))) {
-            handleSavedState(savedInstanceState.getString
-                    (getString(R.string.bundle_key_current_fragment_tag)));
+        String savedValue = savedInstanceState.getString
+                (getString(R.string.bundle_key_current_fragment_tag));
+        if (savedInstanceState != null && !TextUtils.isEmpty(savedValue)) {
+            handleSavedState(savedValue);
         } else {
-            showSelectModeFragment();
+            showModeFragment(FragmentSelectWorkMode.newInstance(), getString(R.string
+                    .fragment_select_work_mode_tag));
         }
-
     }
+    private void initUI() {
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        mContainer = (RelativeLayout) findViewById(R.id.fragment_container);
+    }
+
 
     private void handleSavedState(String tag) {
         Fragment fr = getFragmentManager().findFragmentById(getFragmentContainerId());
-        if (fr != null && !TextUtils.isEmpty(fr.getTag())) {
-            String currentTag = fr.getTag();
+        String currentTag = fr.getTag();
+        if (fr != null && !TextUtils.isEmpty(currentTag)) {
             Log.d(TAG, "handleSavedState: CURRENT_TAG " + fr.getTag());
             fr = getFragmentManager().findFragmentByTag(currentTag);
             Log.d(TAG, "handleSavedState: NEW_TAG " + fr.getTag());
@@ -60,45 +59,21 @@ public class MainActivity extends AppCompatActivity implements IBtnClickListener
             }
         } else {
             if (tag.equals(getString(R.string.fragment_select_work_mode_tag))) {
-                showSelectModeFragment();
+                showModeFragment(FragmentSelectWorkMode.newInstance(), tag);
             } else if (tag.equals(getString(R.string.fragment_client_mode_tag))) {
-                showClientModeFragment();
+                showModeFragment(FragmentClientMode.newInstance(), tag);
             } else if (tag.equals(getString(R.string.fragment_server_mode_tag))) {
-                showServerModeFragment();
+                showModeFragment(FragmentServerMode.newInstance(), tag);
             }
         }
-    }
-
-    private void initUI() {
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        mContainer = (RelativeLayout) findViewById(R.id.fragment_container);
     }
 
     public int getFragmentContainerId() {
         return mContainer.getId();
     }
-
-    private void showSelectModeFragment() {
+    private void showModeFragment(Fragment fragment, String tag) {
         FragmentTransaction ft = getFragmentManager().beginTransaction();
-        ft.replace(getFragmentContainerId(), FragmentSelectWorkMode.newInstance(), getString(R.string
-                .fragment_select_work_mode_tag));
-        ft.commit();
-        Utils.hideKeyboard(this, mContainer.getWindowToken());
-    }
-
-    private void showClientModeFragment() {
-        FragmentTransaction ft = getFragmentManager().beginTransaction();
-        ft.replace(getFragmentContainerId(),
-                FragmentClientMode.newInstance(), getString(R.string.fragment_client_mode_tag));
-        ft.commit();
-        Utils.hideKeyboard(this, mContainer.getWindowToken());
-    }
-
-    private void showServerModeFragment() {
-        FragmentTransaction ft = getFragmentManager().beginTransaction();
-        ft.replace(getFragmentContainerId(),
-                FragmentServerMode.newInstance(), getString(R.string.fragment_server_mode_tag));
+        ft.replace(getFragmentContainerId(), fragment, tag);
         ft.commit();
         Utils.hideKeyboard(this, mContainer.getWindowToken());
     }
@@ -108,21 +83,20 @@ public class MainActivity extends AppCompatActivity implements IBtnClickListener
     public void onClick(final int id) {
         switch (id) {
             case R.id.btn_start_client:
-                showClientModeFragment();
+                showModeFragment(FragmentClientMode.newInstance(), getString(R.string.fragment_client_mode_tag));
                 break;
             case R.id.btn_start_server:
-                showServerModeFragment();
-                startServirService();
+                showModeFragment(FragmentServerMode.newInstance(), getString(R.string.fragment_server_mode_tag));
+                startServerService();
         }
     }
 
-    private void startServirService() {
+    private void startServerService() {
         Intent intent = new Intent(this, ServerService.class);
         intent.putExtra(getString(R.string.bundle_key_inet_address), new PreferencesManager
                 (this).getServerAddress());
         startService(intent);
     }
-
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
@@ -141,27 +115,4 @@ public class MainActivity extends AppCompatActivity implements IBtnClickListener
         }
         super.onSaveInstanceState(outState);
     }
-
-    private String wifiIpAddress() {
-        WifiManager wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
-        int ipAddress = wifiManager.getConnectionInfo().getIpAddress();
-
-        // Convert little-endian to big-endianif needed
-        if (ByteOrder.nativeOrder().equals(ByteOrder.LITTLE_ENDIAN)) {
-            ipAddress = Integer.reverseBytes(ipAddress);
-        }
-
-        byte[] ipByteArray = BigInteger.valueOf(ipAddress).toByteArray();
-
-        String ipAddressString;
-        try {
-            ipAddressString = InetAddress.getByAddress(ipByteArray).getHostAddress();
-        } catch (UnknownHostException ex) {
-            Log.e("WIFIIP", "Unable to get host address.");
-            ipAddressString = null;
-        }
-
-        return ipAddressString;
-    }
-
 }

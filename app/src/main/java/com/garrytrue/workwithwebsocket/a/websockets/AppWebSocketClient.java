@@ -27,7 +27,7 @@ public class AppWebSocketClient extends WebSocketClient {
         Log.d(TAG, "onOpen() called with: " + "handshakedata = [" + handshakedata + "]");
         if (mCallback != null) {
             Log.d(TAG, "onOpen: CONNECTION_OPEN");
-            mCallback.get().gotOpenConnection();
+            mCallback.get().onOpenConnection();
         }
     }
 
@@ -40,14 +40,14 @@ public class AppWebSocketClient extends WebSocketClient {
     public void onClose(int code, String reason, boolean remote) {
         Log.d(TAG, "onClose() called with: " + "code = [" + code + "], reason = [" + reason + "], remote = [" + remote + "]");
         if (mCallback != null)
-            mCallback.get().gotCloseConnection(reason);
+            mCallback.get().onCloseConnection(reason);
     }
 
     @Override
     public void onError(Exception ex) {
         Log.d(TAG, "onError() called with: " + "ex = [" + ex + "]");
         if (mCallback != null)
-            mCallback.get().gotError(ex);
+            mCallback.get().onError(ex);
     }
     public boolean isSocketOpen(){
         return getConnection().isOpen();

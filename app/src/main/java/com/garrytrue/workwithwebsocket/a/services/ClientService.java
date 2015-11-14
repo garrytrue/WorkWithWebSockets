@@ -12,8 +12,8 @@ import com.garrytrue.workwithwebsocket.R;
 import com.garrytrue.workwithwebsocket.a.events.EventConnectionClosed;
 import com.garrytrue.workwithwebsocket.a.events.EventConnectionError;
 import com.garrytrue.workwithwebsocket.a.events.EventConnectionOpen;
+import com.garrytrue.workwithwebsocket.a.events.EventHaveProblem;
 import com.garrytrue.workwithwebsocket.a.events.EventImageSended;
-import com.garrytrue.workwithwebsocket.a.events.EventProblemParsURI;
 import com.garrytrue.workwithwebsocket.a.interfaces.WebSocketCallback;
 import com.garrytrue.workwithwebsocket.a.utils.BitmapFileUtils;
 import com.garrytrue.workwithwebsocket.a.utils.Constants;
@@ -26,6 +26,8 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 
 import javax.crypto.SecretKey;
 
@@ -36,60 +38,74 @@ import de.greenrobot.event.EventBus;
  */
 public class ClientService extends Service {
     private static final String TAG = "ClientService";
-    public static final int EMPTY_ARRAY_LENGHT = 0;
     private Uri mImageUri;
     private AppWebSocketClient mSocketClient;
 
     private WebSocketCallback mCallback = new WebSocketCallback() {
         @Override
-        public void gotMessage(ByteBuffer buffer) {
+        public void onMessageRecieve(ByteBuffer buffer) {
+            throw new UnsupportedOperationException("Not used");
         }
 
         @Override
-        public void gotOpenConnection() {
-            Log.d(TAG, "gotOpenConnection: Connection is OPEN");
+        public void onOpenConnection() {
+            Log.d(TAG, "onOpenConnection: Connection is OPEN");
             EventBus.getDefault().post(new EventConnectionOpen());
             messageSender.run();
         }
 
         @Override
-        public void gotCloseConnection(String reason) {
+        public void onCloseConnection(String reason) {
             EventBus.getDefault().post(new EventConnectionClosed(reason));
         }
 
         @Override
-        public void gotError(Exception ex) {
+        public void onError(Exception ex) {
             EventBus.getDefault().post(new EventConnectionError(ex.getMessage()));
         }
 
         @Override
-        public void gotMessage(String msg) {
-
+        public void onMessageRecieve(String msg) {
+            throw new UnsupportedOperationException("Not used");
         }
     };
     private Runnable messageSender = new Runnable() {
         @Override
         public void run() {
-            SecretKey key = null;
-            String strKey = null;
-            byte[] imArr = getImageByteArray(mImageUri);
-            if (imArr.length > EMPTY_ARRAY_LENGHT) {
-                try {
-                    key = DecoderEncoderUtils.generateKey();
-                    strKey = DecoderEncoderUtils.keyToString(key);
-                    Log.d(TAG, "run: STR KEY " + strKey);
-                    mSocketClient.send(strKey);
-                    byte[] encodeArr = DecoderEncoderUtils.encodeByteArray(imArr, key);
-                    mSocketClient.send(encodeArr);
-                } catch (Exception ex) {
-                    // TODO: 13.11.15 Problem with encode. Notify User.
-                    Log.e(TAG, "MessageSender ", ex);
+            try {
+                byte[] imArr = getImageByteArray(mImageUri);
+                if (imArr.length == 0) {
+                    EventBus.getDefault().post(new EventHaveProblem(getString(R.string.err_could_not_read_image)));
+                    return;
                 }
-            } else {
-                // TODO: 13.11.15 Havent image. Notify User.
+                SecretKey secretKey = DecoderEncoderUtils.generateKey();
+                String strKey = DecoderEncoderUtils.keyToString(secretKey);
+                Log.d(TAG, "run: STR KEY " + strKey);
+                mSocketClient.send(strKey);
+                byte[] encodeArr = DecoderEncoderUtils.encodeByteArray(imArr, secretKey);
+                mSocketClient.send(encodeArr);
+            } catch (NoSuchAlgorithmException | InvalidKeyException ex) {
+                // TODO: 13.11.15 Problem with encode. Notify User.
+                Log.e(TAG, "MessageSender ", ex);
+                EventBus.getDefault().post(new EventHaveProblem(getString(R.string.err_could_not_encode_image)));
+            } catch (IOException ex) {
+                EventBus.getDefault().post(new EventHaveProblem(getString(R.string.err_could_not_read_image)));
             }
             EventBus.getDefault().post(new EventImageSended());
-stopSelf();
+            stopSelf();
+        }
+
+        private byte[] getImageByteArray(Uri imageUri) throws IOException {
+            assert (imageUri != null);
+            InputStream inputStream = getContentResolver().openInputStream(imageUri);
+            ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
+            int bufferSize = 1024;
+            byte[] buffer = new byte[bufferSize];
+            int len = 0;
+            while ((len = inputStream.read(buffer)) != -1) {
+                byteBuffer.write(buffer, 0, len);
+            }
+            return byteBuffer.toByteArray();
         }
     };
 
@@ -112,8 +128,7 @@ stopSelf();
                         initWebSocketClient(intent.getStringExtra(getString(R.string.bundle_key_inet_address)));
                     } catch (URISyntaxException e) {
                         Log.e(TAG, "onStartCommand: ", e);
-                        // TODO: 11.11.15 Notify UI about problem with server address
-                        EventBus.getDefault().post(new EventProblemParsURI());
+                        EventBus.getDefault().post(new EventHaveProblem(getString(R.string.msg_wrong_uri)));
                     }
                 }
                 break;
@@ -141,8 +156,8 @@ stopSelf();
         super.onDestroy();
         Log.d(TAG, "onDestroy: ");
         BitmapFileUtils.deleteCachedFiles(this);
-        if(mSocketClient != null && mSocketClient.isSocketOpen())
-        mSocketClient.close();
+        if (mSocketClient != null && mSocketClient.isSocketOpen())
+            mSocketClient.close();
         super.onDestroy();
     }
 
@@ -151,24 +166,6 @@ stopSelf();
         uri = new URI("ws://" + address);
         mSocketClient = new AppWebSocketClient(uri, mCallback);
         mSocketClient.connect();
-    }
-
-    private byte[] getImageByteArray(Uri imageUri) {
-        assert (imageUri != null);
-        try {
-            InputStream inputStream = getContentResolver().openInputStream(imageUri);
-            ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
-            int bufferSize = 1024;
-            byte[] buffer = new byte[bufferSize];
-            int len = 0;
-            while ((len = inputStream.read(buffer)) != -1) {
-                byteBuffer.write(buffer, 0, len);
-            }
-            return byteBuffer.toByteArray();
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-        return null;
     }
 
 }

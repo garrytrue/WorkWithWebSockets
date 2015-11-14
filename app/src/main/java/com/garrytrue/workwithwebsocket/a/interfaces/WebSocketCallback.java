@@ -7,15 +7,15 @@ import java.nio.ByteBuffer;
  */
 public interface WebSocketCallback {
 
-    void gotMessage(ByteBuffer buffer);
+    void onMessageRecieve(ByteBuffer buffer);
 
-    void gotOpenConnection();
+    void onOpenConnection();
 
-    void gotCloseConnection(String reason);
+    void onCloseConnection(String reason);
 
-    void gotError(Exception ex);
+    void onError(Exception ex);
 
-    void gotMessage(String msg);
+    void onMessageRecieve(String msg);
 
 
 }

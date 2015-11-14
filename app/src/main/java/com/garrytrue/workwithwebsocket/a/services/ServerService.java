@@ -37,36 +37,36 @@ import de.greenrobot.event.EventBus;
  */
 public class ServerService extends Service {
     private static final String TAG = "ServerService";
-    private ByfferWorker mByfferWorker = new ByfferWorker();
+    private BufferWorker mByfferWorker = new BufferWorker();
     private  AppWebSocketServer mWebSocketServer;
     private WebSocketCallback mServerCallback = new WebSocketCallback() {
         @Override
-        public void gotMessage(ByteBuffer buffer) {
-            Log.d(TAG, "gotMessage: Got ByteBuffer");
+        public void onMessageRecieve(ByteBuffer buffer) {
+            Log.d(TAG, "onMessageRecieve: Got ByteBuffer");
             mByfferWorker.setByteBuffer(buffer);
             mByfferWorker.setTaskCompliteListener(mTaskCompliteListener);
             mByfferWorker.run();
         }
 
         @Override
-        public void gotOpenConnection() {
+        public void onOpenConnection() {
 
         }
 
         @Override
-        public void gotCloseConnection(String reason) {
+        public void onCloseConnection(String reason) {
             EventBus.getDefault().post(new EventConnectionClosed(reason));
 
         }
 
         @Override
-        public void gotError(Exception ex) {
+        public void onError(Exception ex) {
             EventBus.getDefault().post(new EventConnectionError(ex.getMessage()));
         }
 
         @Override
-        public void gotMessage(String msg) {
-            Log.d(TAG, "gotMessage: Got Key");
+        public void onMessageRecieve(String msg) {
+            Log.d(TAG, "onMessageRecieve: Got Key");
             mByfferWorker.setKey(msg);
 
         }
@@ -110,8 +110,8 @@ public class ServerService extends Service {
     public IBinder onBind(Intent intent) {
         return null;
     }
+
     public void onDestroy() {
-        super.onDestroy();
         Log.d(TAG, "onDestroy: ");
         BitmapFileUtils.deleteCachedFiles(this);
         if(mWebSocketServer != null)
@@ -126,7 +126,7 @@ public class ServerService extends Service {
     }
 
 
-    private class ByfferWorker implements Runnable {
+    private class BufferWorker implements Runnable {
         private ByteBuffer mByteBuffer;
         private WeakReference<OnTaskCompliteListener> mTaskCompliteListenerRef;
         private String mStrKey;
@@ -143,7 +143,7 @@ public class ServerService extends Service {
             mStrKey = key;
         }
 
-        public ByfferWorker() {
+        public BufferWorker() {
         }
 
         private Uri saveBitmapToCache(byte[] byteArr) {
@@ -174,7 +174,7 @@ public class ServerService extends Service {
                     mTaskCompliteListenerRef.get().onTaskComplited(uri);
                 }
             } catch (Exception ex) {
-                Log.e(TAG, "ByfferWorker: ", ex);
+                Log.e(TAG, "BufferWorker: ", ex);
                 // TODO: 13.11.15 Notify User about problem with decode image
             }
         }
