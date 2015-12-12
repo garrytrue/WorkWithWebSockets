@@ -1,5 +1,6 @@
 package com.garrytrue.workwithwebsocket.events;
 
 
-public class EventImageSaved {
+public class EventImageReceived {
+
 }

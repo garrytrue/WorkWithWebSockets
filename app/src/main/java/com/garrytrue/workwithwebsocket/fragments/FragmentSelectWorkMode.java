@@ -1,4 +1,4 @@
-package com.garrytrue.workwithwebsocket.a.fragments;
+package com.garrytrue.workwithwebsocket.fragments;
 
 import android.app.Activity;
 import android.app.Fragment;
@@ -13,30 +13,27 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.garrytrue.workwithwebsocket.R;
-import com.garrytrue.workwithwebsocket.a.interfaces.IBtnClickListener;
-import com.garrytrue.workwithwebsocket.a.preference.PreferencesManager;
-import com.garrytrue.workwithwebsocket.a.utils.Utils;
+import com.garrytrue.workwithwebsocket.interfaces.IBtnClickListener;
+import com.garrytrue.workwithwebsocket.preference.PreferencesManager;
+import com.garrytrue.workwithwebsocket.utils.Utils;
 
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteOrder;
 
-/**
- * Created by TorbaIgor (garrytrue@yandex.ru) on 08.11.15.
- */
+
 public class FragmentSelectWorkMode extends Fragment {
+
+    private static final String TAG = FragmentSelectWorkMode.class.getSimpleName();
+
     private EditText mServerAddress;
     private PreferencesManager preferencesManager;
-    private static final String TAG = "FragmentSelectWorkMode";
     private IBtnClickListener mClickListener;
 
 
     public static FragmentSelectWorkMode newInstance() {
-        Bundle args = new Bundle();
-        FragmentSelectWorkMode fragment = new FragmentSelectWorkMode();
-        fragment.setArguments(args);
-        return fragment;
+        return new FragmentSelectWorkMode();
     }
 
     private View.OnClickListener mRunClientModeClickListener = new View.OnClickListener() {
@@ -96,11 +93,12 @@ public class FragmentSelectWorkMode extends Fragment {
         if (Utils.isAddressValid(address)) {
             Log.d(TAG, "validateInput: Valid input");
             preferencesManager.putServerAddress(address);
+            return true;
         } else {
             Log.d(TAG, "validateInput: Invalid input");
             mServerAddress.setError(getString(R.string.error_input_address));
+            return false;
         }
-        return Utils.isAddressValid(address);
     }
 
     private void showLastInput() {

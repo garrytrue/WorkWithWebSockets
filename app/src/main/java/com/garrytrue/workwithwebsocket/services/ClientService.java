@@ -1,4 +1,4 @@
-package com.garrytrue.workwithwebsocket.a.services;
+package com.garrytrue.workwithwebsocket.services;
 
 import android.app.Service;
 import android.content.Intent;
@@ -9,16 +9,15 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.garrytrue.workwithwebsocket.R;
-import com.garrytrue.workwithwebsocket.a.events.EventConnectionClosed;
-import com.garrytrue.workwithwebsocket.a.events.EventConnectionError;
-import com.garrytrue.workwithwebsocket.a.events.EventConnectionOpen;
-import com.garrytrue.workwithwebsocket.a.events.EventHaveProblem;
-import com.garrytrue.workwithwebsocket.a.events.EventImageSent;
-import com.garrytrue.workwithwebsocket.a.interfaces.WebSocketCallback;
-import com.garrytrue.workwithwebsocket.a.utils.BitmapFileUtils;
-import com.garrytrue.workwithwebsocket.a.utils.Constants;
-import com.garrytrue.workwithwebsocket.a.utils.DecoderEncoderUtils;
-import com.garrytrue.workwithwebsocket.a.websockets.AppWebSocketClient;
+import com.garrytrue.workwithwebsocket.events.EventConnectionClosed;
+import com.garrytrue.workwithwebsocket.events.EventConnectionError;
+import com.garrytrue.workwithwebsocket.events.EventConnectionOpen;
+import com.garrytrue.workwithwebsocket.events.EventHaveProblem;
+import com.garrytrue.workwithwebsocket.events.EventImageSent;
+import com.garrytrue.workwithwebsocket.interfaces.WebSocketCallback;
+import com.garrytrue.workwithwebsocket.utils.BitmapFileUtils;
+import com.garrytrue.workwithwebsocket.utils.DecoderEncoderUtils;
+import com.garrytrue.workwithwebsocket.websockets.AppWebSocketClient;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -33,11 +32,12 @@ import javax.crypto.SecretKey;
 
 import de.greenrobot.event.EventBus;
 
-/**
- * Created by TorbaIgor (garrytrue@yandex.ru) on 09.11.15.
- */
+import static com.garrytrue.workwithwebsocket.utils.Constants.BUNDLE_KEY_DEVICE_IP;
+import static com.garrytrue.workwithwebsocket.utils.Constants.BUNDLE_KEY_TEMP_IMAGE_URI;
+import static com.garrytrue.workwithwebsocket.utils.Constants.WEB_SOCKET_PREFIX;
+
 public class ClientService extends Service {
-    private static final String TAG = "ClientService";
+    private static final String TAG = ClientService.class.getSimpleName();
     private Uri mImageUri;
     private AppWebSocketClient mSocketClient;
 
@@ -85,7 +85,6 @@ public class ClientService extends Service {
                 byte[] encodeArr = DecoderEncoderUtils.encodeByteArray(imArr, secretKey);
                 mSocketClient.send(encodeArr);
             } catch (NoSuchAlgorithmException | InvalidKeyException ex) {
-                // TODO: 13.11.15 Problem with encode. Notify User.
                 Log.e(TAG, "MessageSender ", ex);
                 EventBus.getDefault().post(new EventHaveProblem(getString(R.string.err_could_not_encode_image)));
             } catch (IOException ex) {
@@ -96,12 +95,12 @@ public class ClientService extends Service {
         }
 
         private byte[] getImageByteArray(Uri imageUri) throws IOException {
-            assert (imageUri != null);
+            if (imageUri == null) throw new IllegalArgumentException("Image uri is null");
             InputStream inputStream = getContentResolver().openInputStream(imageUri);
             ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
             int bufferSize = 1024;
             byte[] buffer = new byte[bufferSize];
-            int len = 0;
+            int len;
             while ((len = inputStream.read(buffer)) != -1) {
                 byteBuffer.write(buffer, 0, len);
             }
@@ -116,14 +115,13 @@ public class ClientService extends Service {
     }
 
     public int onStartCommand(Intent intent, int flag, int startId) {
-        if (intent.getAction() == Constants.ACTION_START_CONNECTION && intent.getExtras() != null) {
+        if (intent.getExtras() != null) {
             Bundle bundle = intent.getExtras();
-            String address = bundle.getString(getString(R.string.bundle_key_inet_address));
+            String address = bundle.getString(BUNDLE_KEY_DEVICE_IP);
             Log.d(TAG, "onStartCommand: Address " + address);
-            mImageUri = Uri.parse(bundle.getString(getString(R.string
-                    .bundle_key_msg_data)));
+            mImageUri = Uri.parse(bundle.getString(BUNDLE_KEY_TEMP_IMAGE_URI));
             try {
-                initWebSocketClient(intent.getStringExtra(getString(R.string.bundle_key_inet_address)));
+                initWebSocketClient(intent.getStringExtra(BUNDLE_KEY_DEVICE_IP));
             } catch (URISyntaxException e) {
                 Log.e(TAG, "onStartCommand: ", e);
                 EventBus.getDefault().post(new EventHaveProblem(getString(R.string.msg_wrong_uri)));
@@ -159,7 +157,7 @@ public class ClientService extends Service {
     }
 
     private void initWebSocketClient(String address) throws URISyntaxException {
-        mSocketClient = new AppWebSocketClient(new URI("ws://" + address), mCallback);
+        mSocketClient = new AppWebSocketClient(new URI(WEB_SOCKET_PREFIX + address), mCallback);
         mSocketClient.connect();
     }
 

@@ -16,7 +16,7 @@
         android:theme="@style/AppTheme">
 
         <activity
-            android:name=".a.activities.MainActivity"
+            android:name=".activities.MainActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar"
             android:launchMode="singleTop">
@@ -27,10 +27,10 @@
             </intent-filter>
         </activity>
         <service
-            android:name=".a.services.ClientService"
+            android:name=".services.ClientService"
             android:exported="false"/>
         <service
-            android:name=".a.services.ServerService"
+            android:name=".services.ServerService"
             android:exported="false"/>
 
     </application>

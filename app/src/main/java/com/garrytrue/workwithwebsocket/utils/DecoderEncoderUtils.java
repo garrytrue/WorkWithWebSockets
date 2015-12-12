@@ -1,4 +1,4 @@
-package com.garrytrue.workwithwebsocket.a.utils;
+package com.garrytrue.workwithwebsocket.utils;
 
 import android.util.Base64;
 
@@ -13,45 +13,42 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
-/**
- * Created by TorbaIgor (garrytrue@yandex.ru) on 12.11.15.
- */
 public class DecoderEncoderUtils {
 
-    private static final int KEY_LENGHT = 128;
-    private static final String ALGORITHM = "AES";
+    private static final int KEY_LENGTH = 128;
+    private static final String ALGORITHM_AES = "AES";
 
     private DecoderEncoderUtils() {
-        new AssertionError();
+        throw new AssertionError();
     }
 
 
-    public static byte[] encodeByteArray(byte[] array, SecretKey key) throws InvalidKeyException{
-       try {
-           Cipher chiper = Cipher.getInstance(ALGORITHM);
-           chiper.init(Cipher.ENCRYPT_MODE, key);
-           return chiper.doFinal(array);
-       }catch (InvalidKeyException | NoSuchPaddingException | NoSuchAlgorithmException |
-                BadPaddingException| IllegalBlockSizeException ex){
-           throw new  InvalidKeyException("Problem encode file. See DecoderEncoderUtils.encodeByteArray");
-       }
+    public static byte[] encodeByteArray(byte[] array, SecretKey key) throws InvalidKeyException {
+        try {
+            Cipher cipher = Cipher.getInstance(ALGORITHM_AES);
+            cipher.init(Cipher.ENCRYPT_MODE, key);
+            return cipher.doFinal(array);
+        } catch (InvalidKeyException | NoSuchPaddingException | NoSuchAlgorithmException |
+                BadPaddingException | IllegalBlockSizeException ex) {
+            throw new InvalidKeyException("Problem encode file. See DecoderEncoderUtils.encodeByteArray");
+        }
     }
 
     public static SecretKey generateKey() throws NoSuchAlgorithmException {
-        KeyGenerator keyGen = KeyGenerator.getInstance(ALGORITHM);
-        keyGen.init(KEY_LENGHT);
+        KeyGenerator keyGen = KeyGenerator.getInstance(ALGORITHM_AES);
+        keyGen.init(KEY_LENGTH);
         return keyGen.generateKey();
     }
 
     public static byte[] decodeByteArray(byte[] array, SecretKey key) throws Exception {
-        Cipher chiper = Cipher.getInstance(ALGORITHM);
-        chiper.init(Cipher.DECRYPT_MODE, key);
-        return chiper.doFinal(array);
+        Cipher cipher = Cipher.getInstance(ALGORITHM_AES);
+        cipher.init(Cipher.DECRYPT_MODE, key);
+        return cipher.doFinal(array);
     }
 
     public static SecretKey keyFromString(String str) {
         byte[] encodedKey = Base64.decode(str, Base64.DEFAULT);
-        return new SecretKeySpec(encodedKey, 0, encodedKey.length, "AES");
+        return new SecretKeySpec(encodedKey, 0, encodedKey.length, ALGORITHM_AES);
     }
 
     public static String keyToString(SecretKey key) {

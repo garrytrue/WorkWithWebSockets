@@ -1,4 +1,4 @@
-package com.garrytrue.workwithwebsocket.a.services;
+package com.garrytrue.workwithwebsocket.services;
 
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -11,17 +11,18 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.garrytrue.workwithwebsocket.R;
-import com.garrytrue.workwithwebsocket.a.activities.MainActivity;
-import com.garrytrue.workwithwebsocket.a.events.EventConnectionClosed;
-import com.garrytrue.workwithwebsocket.a.events.EventConnectionError;
-import com.garrytrue.workwithwebsocket.a.events.EventHaveProblem;
-import com.garrytrue.workwithwebsocket.a.events.EventImageReciered;
-import com.garrytrue.workwithwebsocket.a.interfaces.OnTaskCompleteListener;
-import com.garrytrue.workwithwebsocket.a.interfaces.WebSocketCallback;
-import com.garrytrue.workwithwebsocket.a.preference.PreferencesManager;
-import com.garrytrue.workwithwebsocket.a.utils.BitmapFileUtils;
-import com.garrytrue.workwithwebsocket.a.utils.DecoderEncoderUtils;
-import com.garrytrue.workwithwebsocket.a.websockets.AppWebSocketServer;
+import com.garrytrue.workwithwebsocket.activities.MainActivity;
+import com.garrytrue.workwithwebsocket.events.EventConnectionClosed;
+import com.garrytrue.workwithwebsocket.events.EventConnectionError;
+import com.garrytrue.workwithwebsocket.events.EventHaveProblem;
+import com.garrytrue.workwithwebsocket.events.EventImageReceived;
+import com.garrytrue.workwithwebsocket.interfaces.OnTaskCompleteListener;
+import com.garrytrue.workwithwebsocket.interfaces.WebSocketCallback;
+import com.garrytrue.workwithwebsocket.preference.PreferencesManager;
+import com.garrytrue.workwithwebsocket.utils.BitmapFileUtils;
+import com.garrytrue.workwithwebsocket.utils.Constants;
+import com.garrytrue.workwithwebsocket.utils.DecoderEncoderUtils;
+import com.garrytrue.workwithwebsocket.websockets.AppWebSocketServer;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,9 +34,7 @@ import javax.crypto.SecretKey;
 
 import de.greenrobot.event.EventBus;
 
-/**
- * Created by TorbaIgor (garrytrue@yandex.ru) on 10.11.15.
- */
+
 public class ServerService extends Service {
     private static final String TAG = "ServerService";
     private BufferWorker mBufferWorker = new BufferWorker();
@@ -79,15 +78,14 @@ public class ServerService extends Service {
             sendNotification();
             Log.d(TAG, "onTaskCompleted: FILE URI " + uri);
             new PreferencesManager(getApplicationContext()).putDownloadedImageUri(uri);
-            EventBus.getDefault().post(new EventImageReciered());
+            EventBus.getDefault().post(new EventImageReceived());
         }
     };
 
 
     public int onStartCommand(Intent intent, int flag, int startId) {
         Log.d(TAG, "onStartCommand() called with: " + "intent = [" + intent + "], flag = [" + flag + "], startId = [" + startId + "]");
-        String serverAddress = intent.getStringExtra(getString(R
-                .string.bundle_key_inet_address));
+        String serverAddress = intent.getStringExtra(Constants.BUNDLE_KEY_DEVICE_IP);
         Log.d(TAG, "onStartCommand: Uri for connection " + serverAddress);
         initWebSocketServer(serverAddress);
         return START_NOT_STICKY;

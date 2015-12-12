@@ -1,4 +1,4 @@
-package com.garrytrue.workwithwebsocket.a.interfaces;
+package com.garrytrue.workwithwebsocket.interfaces;
 
 import java.nio.ByteBuffer;
 

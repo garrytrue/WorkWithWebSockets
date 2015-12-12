@@ -1,4 +1,4 @@
-package com.garrytrue.workwithwebsocket.a.utils;
+package com.garrytrue.workwithwebsocket.utils;
 
 import android.app.Activity;
 import android.content.Context;

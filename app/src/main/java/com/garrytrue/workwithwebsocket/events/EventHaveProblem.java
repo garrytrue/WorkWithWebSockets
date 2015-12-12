@@ -1,8 +1,5 @@
-package com.garrytrue.workwithwebsocket.a.events;
+package com.garrytrue.workwithwebsocket.events;
 
-/**
- * Created by TorbaIgor (garrytrue@yandex.ru) on 14.11.15.
- */
 public class EventHaveProblem {
     String message;
 

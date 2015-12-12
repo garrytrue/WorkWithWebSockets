@@ -1,4 +1,4 @@
-package com.garrytrue.workwithwebsocket.a.fragments;
+package com.garrytrue.workwithwebsocket.fragments;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -14,14 +14,13 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.garrytrue.workwithwebsocket.R;
-import com.garrytrue.workwithwebsocket.a.events.EventImageReciered;
-import com.garrytrue.workwithwebsocket.a.preference.PreferencesManager;
-import com.garrytrue.workwithwebsocket.a.services.ServerService;
-import com.garrytrue.workwithwebsocket.a.tasks.AddToGalleryTask;
+import com.garrytrue.workwithwebsocket.events.EventImageReceived;
+import com.garrytrue.workwithwebsocket.preference.PreferencesManager;
+import com.garrytrue.workwithwebsocket.services.ServerService;
+import com.garrytrue.workwithwebsocket.tasks.AddToGalleryTask;
+import com.garrytrue.workwithwebsocket.utils.Constants;
 
-/**
- * Created by TorbaIgor (garrytrue@yandex.ru) on 11.11.15.
- */
+
 public class FragmentServerMode extends BaseClientServerFragment {
     private Button mBtnSaveImage;
     protected Uri mImageUri;
@@ -58,9 +57,9 @@ public class FragmentServerMode extends BaseClientServerFragment {
     @Override
     public void onViewCreated(View v, Bundle savedInstanceState) {
         if (savedInstanceState != null && !TextUtils.isEmpty(savedInstanceState.getString
-                (getString(R.string.bundle_key_store_image_uri_lifecycle)))) {
+                (Constants.BUNDLE_KEY_TEMP_IMAGE_URI))) {
             mImageUri = Uri.parse(savedInstanceState.getString
-                    (getString(R.string.bundle_key_store_image_uri_lifecycle)));
+                    (Constants.BUNDLE_KEY_TEMP_IMAGE_URI));
             Log.d(TAG, "onViewCreated: restore URI " + mImageUri);
         }
         initUI(v);
@@ -70,7 +69,7 @@ public class FragmentServerMode extends BaseClientServerFragment {
     public void onSaveInstanceState(Bundle outState) {
         Log.d(TAG, "onSaveInstanceState: URI " + mImageUri);
         if (mImageUri != null)
-            outState.putString(getString(R.string.bundle_key_store_image_uri_lifecycle), mImageUri.toString());
+            outState.putString(Constants.BUNDLE_KEY_TEMP_IMAGE_URI, mImageUri.toString());
         super.onSaveInstanceState(outState);
     }
 
@@ -94,15 +93,15 @@ public class FragmentServerMode extends BaseClientServerFragment {
 
     }
 
-    protected void onReciveImageEvent(EventImageReciered ev) {
+    protected void onReceiveImageEvent(EventImageReceived ev) {
         mImageUri = new PreferencesManager(getActivity()).getDownLoadedImageUri();
-        Log.d(TAG, "onReciveImageEvent: " + mImageUri);
+        Log.d(TAG, "onReceiveImageEvent: " + mImageUri);
         loadImageFromUri(mImageUri);
         mBtnSaveImage.setVisibility(View.VISIBLE);
     }
     protected void onImageSavedEvent() {
         mImageUri = new PreferencesManager(getActivity()).getDownLoadedImageUri();
-        Log.d(TAG, "onReciveImageEvent: " + mImageUri);
+        Log.d(TAG, "onReceiveImageEvent: " + mImageUri);
         loadImageFromUri(mImageUri);
         mBtnSaveImage.setVisibility(View.GONE);
     }

@@ -1,4 +1,4 @@
-package com.garrytrue.workwithwebsocket.a.fragments;
+package com.garrytrue.workwithwebsocket.fragments;
 
 import android.app.Fragment;
 import android.net.Uri;
@@ -8,21 +8,18 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 
 import com.garrytrue.workwithwebsocket.R;
-import com.garrytrue.workwithwebsocket.a.events.EventConnectionClosed;
-import com.garrytrue.workwithwebsocket.a.events.EventConnectionError;
-import com.garrytrue.workwithwebsocket.a.events.EventConnectionOpen;
-import com.garrytrue.workwithwebsocket.a.events.EventHaveProblem;
-import com.garrytrue.workwithwebsocket.a.events.EventImageReciered;
-import com.garrytrue.workwithwebsocket.a.events.EventImageSaved;
-import com.garrytrue.workwithwebsocket.a.events.EventImageSent;
-import com.garrytrue.workwithwebsocket.a.utils.Utils;
+import com.garrytrue.workwithwebsocket.events.EventConnectionClosed;
+import com.garrytrue.workwithwebsocket.events.EventConnectionError;
+import com.garrytrue.workwithwebsocket.events.EventConnectionOpen;
+import com.garrytrue.workwithwebsocket.events.EventHaveProblem;
+import com.garrytrue.workwithwebsocket.events.EventImageReceived;
+import com.garrytrue.workwithwebsocket.events.EventImageSaved;
+import com.garrytrue.workwithwebsocket.events.EventImageSent;
+import com.garrytrue.workwithwebsocket.utils.Utils;
 import com.squareup.picasso.Picasso;
 
 import de.greenrobot.event.EventBus;
 
-/**
- * Created by TorbaIgor (garrytrue@yandex.ru) on 12.11.15.
- */
 public class BaseClientServerFragment extends Fragment {
     protected ProgressBar mImageProgress;
     protected ImageView mImageView;
@@ -45,8 +42,7 @@ public class BaseClientServerFragment extends Fragment {
         if (!EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().register(this);
         } else
-            throw new IllegalStateException(
-                    getString(R.string.exception_eventbus));
+            throw new IllegalStateException("This object was been subscribed");
     }
 
     private void notListenCallbacks() {
@@ -65,13 +61,15 @@ public class BaseClientServerFragment extends Fragment {
         Utils.showToast(getActivity(), event.getMessage());
     }
 
-    public void onEventMainThread(EventImageReciered event) {
+    public void onEventMainThread(EventImageReceived event) {
         hideImageProgress();
-        onReciveImageEvent(event);
+        onReceiveImageEvent(event);
     }
+
     public void onEventMainThread(EventImageSent event) {
-        onSendedImageEvent();
+        onSentImageEvent();
     }
+
     public void onEventMainThread(EventImageSaved event) {
         onImageSavedEvent();
     }
@@ -83,20 +81,16 @@ public class BaseClientServerFragment extends Fragment {
     protected void onImageSavedEvent() {
     }
 
-    protected void onSendedImageEvent() {
+    protected void onSentImageEvent() {
     }
 
 
     protected void showImageProgress() {
-        if (mImageProgress.getVisibility() == View.GONE) {
-            mImageProgress.setVisibility(View.VISIBLE);
-        }
+        mImageProgress.setVisibility(View.VISIBLE);
     }
 
     protected void hideImageProgress() {
-        if (mImageProgress.getVisibility() == View.VISIBLE) {
-            mImageProgress.setVisibility(View.GONE);
-        }
+        mImageProgress.setVisibility(View.GONE);
     }
 
     protected void loadImageFromUri(Uri uri) {
@@ -107,6 +101,6 @@ public class BaseClientServerFragment extends Fragment {
         Picasso.with(getActivity()).load(uri).placeholder(R.mipmap.empty_src).into(mImageView);
     }
 
-    protected void onReciveImageEvent(EventImageReciered ev) {
+    protected void onReceiveImageEvent(EventImageReceived ev) {
     }
 }

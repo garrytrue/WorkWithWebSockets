@@ -1,4 +1,4 @@
-package com.garrytrue.workwithwebsocket.a.tasks;
+package com.garrytrue.workwithwebsocket.tasks;
 
 import android.content.Context;
 import android.content.Intent;
@@ -6,9 +6,9 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.garrytrue.workwithwebsocket.a.events.EventImageSaved;
-import com.garrytrue.workwithwebsocket.a.preference.PreferencesManager;
-import com.garrytrue.workwithwebsocket.a.utils.BitmapFileUtils;
+import com.garrytrue.workwithwebsocket.events.EventImageSaved;
+import com.garrytrue.workwithwebsocket.preference.PreferencesManager;
+import com.garrytrue.workwithwebsocket.utils.BitmapFileUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -60,10 +60,10 @@ public class AddToGalleryTask extends AsyncTask<Uri, Void, Void> {
                     }
                 }
                 Log.d(TAG, "doInBackground: " + imageFile.getPath());
-                galleryAddPic(localContext, BitmapFileUtils.PATH_PREFIX + imageFile.getPath());
+                final String imageUri = BitmapFileUtils.PATH_PREFIX + imageFile.getPath();
+                galleryAddPic(localContext, imageUri);
                 BitmapFileUtils.deleteCachedFiles(localContext);
-                new PreferencesManager(localContext).putDownloadedImageUri(Uri.parse((BitmapFileUtils
-                        .PATH_PREFIX + imageFile.getPath())));
+                new PreferencesManager(localContext).putDownloadedImageUri(Uri.parse(imageUri));
                 EventBus.getDefault().post(new EventImageSaved());
             }
         }

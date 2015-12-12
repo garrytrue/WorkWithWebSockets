@@ -1,4 +1,4 @@
-package com.garrytrue.workwithwebsocket.a.tasks;
+package com.garrytrue.workwithwebsocket.tasks;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -8,8 +8,8 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.garrytrue.workwithwebsocket.a.interfaces.OnTaskCompleteListener;
-import com.garrytrue.workwithwebsocket.a.utils.BitmapFileUtils;
+import com.garrytrue.workwithwebsocket.interfaces.OnTaskCompleteListener;
+import com.garrytrue.workwithwebsocket.utils.BitmapFileUtils;
 
 import java.io.File;
 import java.io.IOException;

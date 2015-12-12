@@ -1,8 +1,8 @@
-package com.garrytrue.workwithwebsocket.a.websockets;
+package com.garrytrue.workwithwebsocket.websockets;
 
 import android.util.Log;
 
-import com.garrytrue.workwithwebsocket.a.interfaces.WebSocketCallback;
+import com.garrytrue.workwithwebsocket.interfaces.WebSocketCallback;
 
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
@@ -12,12 +12,9 @@ import java.lang.ref.WeakReference;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 
-/**
- * Created by TorbaIgor (garrytrue@yandex.ru) on 10.11.15.
- */
 public class AppWebSocketServer extends WebSocketServer {
     private static final String TAG = "AppWebSocketServer";
-    private WeakReference<WebSocketCallback> mCallback;
+    private final  WeakReference<WebSocketCallback> mCallback;
 
     public AppWebSocketServer(InetSocketAddress address, WebSocketCallback callback) {
         super(address);
@@ -32,7 +29,7 @@ public class AppWebSocketServer extends WebSocketServer {
     @Override
     public void onClose(WebSocket conn, int code, String reason, boolean remote) {
         Log.d(TAG, "onClose() called with: " + "conn = [" + conn + "], code = [" + code + "], reason = [" + reason + "], remote = [" + remote + "]");
-        if (mCallback != null) {
+        if (mCallback.get() != null) {
             mCallback.get().onCloseConnection(reason);
         }
     }
@@ -40,8 +37,8 @@ public class AppWebSocketServer extends WebSocketServer {
     @Override
     public void onMessage(WebSocket conn, String message) {
         Log.d(TAG, "onMessage() called with: " + "conn = [" + conn + "], message = [" + message + "]");
-        if (mCallback != null) {
-            Log.d(TAG, "onMessage: GOT_FUCK_MSG");
+        if (mCallback.get() != null) {
+            Log.d(TAG, "onMessage: GOT_MSG");
             mCallback.get().onMessageReceived(message);
         }
     }
@@ -51,8 +48,8 @@ public class AppWebSocketServer extends WebSocketServer {
         Log.d(TAG, "onMessage() SERVER called with: " + "conn = [" + conn + "], message = [" +
                 data + "]");
         Log.d(TAG, "onMessage: SERVER Buffer Lenght " + data.array().length);
-        if (mCallback != null) {
-            Log.d(TAG, "onMessage: GOT_FUCK_MSG");
+        if (mCallback.get() != null) {
+            Log.d(TAG, "onMessage: GOT_MSG");
             mCallback.get().onMessageReceived(data);
         }
     }
@@ -60,7 +57,7 @@ public class AppWebSocketServer extends WebSocketServer {
     @Override
     public void onError(WebSocket conn, Exception ex) {
         Log.d(TAG, "onError() called with: " + "conn = [" + conn + "], ex = [" + ex + "]");
-        if (mCallback != null) {
+        if (mCallback.get() != null) {
             mCallback.get().onError(ex);
         }
     }

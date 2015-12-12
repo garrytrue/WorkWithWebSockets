@@ -1,4 +1,4 @@
-package com.garrytrue.workwithwebsocket.a.utils;
+package com.garrytrue.workwithwebsocket.utils;
 
 import android.content.Context;
 import android.graphics.Bitmap;

@@ -1,4 +1,4 @@
-package com.garrytrue.workwithwebsocket.a.fragments;
+package com.garrytrue.workwithwebsocket.fragments;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -16,19 +16,18 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.garrytrue.workwithwebsocket.R;
-import com.garrytrue.workwithwebsocket.a.interfaces.OnTaskCompleteListener;
-import com.garrytrue.workwithwebsocket.a.preference.PreferencesManager;
-import com.garrytrue.workwithwebsocket.a.services.ClientService;
-import com.garrytrue.workwithwebsocket.a.tasks.ProcessBitmapTask;
-import com.garrytrue.workwithwebsocket.a.utils.Constants;
-import com.garrytrue.workwithwebsocket.a.utils.Utils;
+import com.garrytrue.workwithwebsocket.interfaces.OnTaskCompleteListener;
+import com.garrytrue.workwithwebsocket.preference.PreferencesManager;
+import com.garrytrue.workwithwebsocket.services.ClientService;
+import com.garrytrue.workwithwebsocket.tasks.ProcessBitmapTask;
+import com.garrytrue.workwithwebsocket.utils.Constants;
+import com.garrytrue.workwithwebsocket.utils.Utils;
+import static com.garrytrue.workwithwebsocket.utils.Constants.*;
 
-/**
- * Created by TorbaIgor (garrytrue@yandex.ru) on 08.11.15.
- */
+
 public class FragmentClientMode extends BaseClientServerFragment {
-    public static final int SELECT_IMAGE_FROM_GALLERY = 9;
-    private static final String TAG = "FragmentClientMode";
+    private static final int SELECT_IMAGE_FROM_GALLERY = 9;
+    private static final String TAG = FragmentClientMode.class.getSimpleName();
     private Uri mImageUri;
 
     private View.OnClickListener mSelectImageClickListener = new View.OnClickListener() {
@@ -45,16 +44,14 @@ public class FragmentClientMode extends BaseClientServerFragment {
         public void onClick(View v) {
             Intent request = new Intent(getActivity(), ClientService.class);
             Bundle bundle = new Bundle();
-            bundle.putString(getString(R.string.bundle_key_inet_address), new PreferencesManager
+            bundle.putString(Constants.BUNDLE_KEY_DEVICE_IP, new PreferencesManager
                     (getActivity()).getServerAddress());
             if (mImageUri != null) {
-                bundle.putString(getString(R.string.bundle_key_msg_data), mImageUri.toString());
+                bundle.putString(BUNDLE_KEY_IMAGE_URI, mImageUri.toString());
             } else {
                 Utils.showToast(getActivity(), getString(R.string.error_not_image));
                 return;
             }
-
-            request.setAction(Constants.ACTION_START_CONNECTION);
             request.putExtras(bundle);
             getActivity().startService(request);
 
@@ -72,12 +69,7 @@ public class FragmentClientMode extends BaseClientServerFragment {
     };
 
     public static FragmentClientMode newInstance() {
-
-        Bundle args = new Bundle();
-
-        FragmentClientMode fragment = new FragmentClientMode();
-        fragment.setArguments(args);
-        return fragment;
+        return new FragmentClientMode();
     }
 
     @Override
@@ -89,9 +81,9 @@ public class FragmentClientMode extends BaseClientServerFragment {
     @Override
     public void onViewCreated(View v, Bundle savedInstanceState) {
         if (savedInstanceState != null && !TextUtils.isEmpty(savedInstanceState.getString
-                (getString(R.string.bundle_key_store_image_uri_lifecycle)))) {
+                (BUNDLE_KEY_TEMP_IMAGE_URI))) {
             mImageUri = Uri.parse(savedInstanceState.getString
-                    (getString(R.string.bundle_key_store_image_uri_lifecycle)));
+                    (BUNDLE_KEY_TEMP_IMAGE_URI));
             Log.d(TAG, "onViewCreated: restore URI " + mImageUri);
         }
         initUI(v);
@@ -101,7 +93,7 @@ public class FragmentClientMode extends BaseClientServerFragment {
     public void onSaveInstanceState(Bundle outState) {
         Log.d(TAG, "onSaveInstanceState: URI " + mImageUri);
         if (mImageUri != null)
-            outState.putString(getString(R.string.bundle_key_store_image_uri_lifecycle), mImageUri.toString());
+            outState.putString(BUNDLE_KEY_TEMP_IMAGE_URI, mImageUri.toString());
         super.onSaveInstanceState(outState);
     }
 
@@ -116,6 +108,7 @@ public class FragmentClientMode extends BaseClientServerFragment {
         TextView tvServerAddress = (TextView) v.findViewById(R.id.tvServerAdr);
         tvServerAddress.setText(String.format(getString(R.string.server_address_w_format), new PreferencesManager
                 (getActivity()).getServerAddress()));
+//        Load images from stored uri, if uri is null - load default image
         loadImageFromUri(mImageUri);
     }
 
@@ -141,7 +134,7 @@ public class FragmentClientMode extends BaseClientServerFragment {
             }
         }
     }
-    protected void onSendedImageEvent() {
+    protected void onSentImageEvent() {
         mImageView.setImageResource(R.mipmap.empty_src);
     }
 }

@@ -1,8 +1,8 @@
-package com.garrytrue.workwithwebsocket.a.websockets;
+package com.garrytrue.workwithwebsocket.websockets;
 
 import android.util.Log;
 
-import com.garrytrue.workwithwebsocket.a.interfaces.WebSocketCallback;
+import com.garrytrue.workwithwebsocket.interfaces.WebSocketCallback;
 
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
@@ -10,9 +10,6 @@ import org.java_websocket.handshake.ServerHandshake;
 import java.lang.ref.WeakReference;
 import java.net.URI;
 
-/**
- * Created by TorbaIgor (garrytrue@yandex.ru) on 10.11.15.
- */
 public class AppWebSocketClient extends WebSocketClient {
     private static final String TAG = "AppWebSocketClient";
     private WeakReference<WebSocketCallback> mCallback;
@@ -25,7 +22,7 @@ public class AppWebSocketClient extends WebSocketClient {
     @Override
     public void onOpen(ServerHandshake handshakedata) {
         Log.d(TAG, "onOpen() called with: " + "handshakedata = [" + handshakedata + "]");
-        if (mCallback != null) {
+        if (mCallback.get() != null) {
             Log.d(TAG, "onOpen: CONNECTION_OPEN");
             mCallback.get().onOpenConnection();
         }
@@ -39,14 +36,14 @@ public class AppWebSocketClient extends WebSocketClient {
     @Override
     public void onClose(int code, String reason, boolean remote) {
         Log.d(TAG, "onClose() called with: " + "code = [" + code + "], reason = [" + reason + "], remote = [" + remote + "]");
-        if (mCallback != null)
+        if (mCallback.get() != null)
             mCallback.get().onCloseConnection(reason);
     }
 
     @Override
     public void onError(Exception ex) {
         Log.d(TAG, "onError() called with: " + "ex = [" + ex + "]");
-        if (mCallback != null)
+        if (mCallback.get() != null)
             mCallback.get().onError(ex);
     }
     public boolean isSocketOpen(){
