@@ -63,8 +63,8 @@ public class FragmentClientMode extends BaseClientServerFragment {
 
     private OnTaskCompleteListener mOnTaskCompleteListener = new OnTaskCompleteListener() {
         @Override
-        public void onTaskComplited(Uri uri) {
-            Log.d(TAG, "onTaskComplited: URI " + uri);
+        public void onTaskCompleted(Uri uri) {
+            Log.d(TAG, "onTaskCompleted: URI " + uri);
             mImageUri = uri;
             loadImageFromUri(mImageUri);
             hideImageProgress();

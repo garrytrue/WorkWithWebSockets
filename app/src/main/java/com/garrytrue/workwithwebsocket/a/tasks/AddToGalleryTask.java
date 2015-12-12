@@ -18,12 +18,10 @@ import java.lang.ref.WeakReference;
 
 import de.greenrobot.event.EventBus;
 
-/**
- * Created by TorbaIgor (garrytrue@yandex.ru) on 12.11.15.
- */
 public class AddToGalleryTask extends AsyncTask<Uri, Void, Void> {
-    private static final String TAG = "AddToGalleryTask";
-    private WeakReference<Context> mContextRef;
+    private static final String TAG = AddToGalleryTask.class.getSimpleName();
+
+    private final WeakReference<Context> mContextRef;
 
     public AddToGalleryTask(Context context) {
         mContextRef = new WeakReference<>(context);
@@ -31,7 +29,7 @@ public class AddToGalleryTask extends AsyncTask<Uri, Void, Void> {
 
     @Override
     protected Void doInBackground(Uri... params) {
-        File imageFile = null;
+        File imageFile;
         try {
             imageFile = BitmapFileUtils.createImageFile();
         } catch (IOException e) {
@@ -40,11 +38,12 @@ public class AddToGalleryTask extends AsyncTask<Uri, Void, Void> {
             return null;
         }
         if (!isCancelled()) {
-            FileOutputStream fileOutputStream;
             InputStream inputStream = null;
-            if (mContextRef != null && imageFile != null)
+            final Context localContext = mContextRef.get();
+            final FileOutputStream fileOutputStream;
+            if (localContext != null && imageFile != null) {
                 try {
-                    inputStream = mContextRef.get().getContentResolver().openInputStream(params[0]);
+                    inputStream = localContext.getContentResolver().openInputStream(params[0]);
                     fileOutputStream = new FileOutputStream(imageFile);
                     BitmapFileUtils.copyStream(inputStream, fileOutputStream);
                     fileOutputStream.flush();
@@ -60,11 +59,10 @@ public class AddToGalleryTask extends AsyncTask<Uri, Void, Void> {
                         }
                     }
                 }
-            Log.d(TAG, "doInBackground: " + imageFile.getPath());
-            if (mContextRef != null && imageFile != null) {
-                galleryAddPic(mContextRef.get(), BitmapFileUtils.PATH_PREFIX + imageFile.getPath());
-                BitmapFileUtils.deleteCachedFiles(mContextRef.get());
-                new PreferencesManager(mContextRef.get()).putDownloadedImageUri(Uri.parse((BitmapFileUtils
+                Log.d(TAG, "doInBackground: " + imageFile.getPath());
+                galleryAddPic(localContext, BitmapFileUtils.PATH_PREFIX + imageFile.getPath());
+                BitmapFileUtils.deleteCachedFiles(localContext);
+                new PreferencesManager(localContext).putDownloadedImageUri(Uri.parse((BitmapFileUtils
                         .PATH_PREFIX + imageFile.getPath())));
                 EventBus.getDefault().post(new EventImageSaved());
             }

@@ -43,8 +43,8 @@ public class ServerService extends Service {
 
     private WebSocketCallback mServerCallback = new WebSocketCallback() {
         @Override
-        public void onMessageRecieve(ByteBuffer buffer) {
-            Log.d(TAG, "onMessageRecieve: Got ByteBuffer");
+        public void onMessageReceived(ByteBuffer buffer) {
+            Log.d(TAG, "onMessageReceived: Got ByteBuffer");
             mBufferWorker.setByteBuffer(buffer);
             mBufferWorker.setTaskCompliteListener(mTaskCompliteListener);
             mBufferWorker.run();
@@ -67,17 +67,17 @@ public class ServerService extends Service {
         }
 
         @Override
-        public void onMessageRecieve(String msg) {
-            Log.d(TAG, "onMessageRecieve: Got Key");
+        public void onMessageReceived(String msg) {
+            Log.d(TAG, "onMessageReceived: Got Key");
             mBufferWorker.setKey(msg);
 
         }
     };
     private OnTaskCompleteListener mTaskCompliteListener = new OnTaskCompleteListener() {
         @Override
-        public void onTaskComplited(Uri uri) {
+        public void onTaskCompleted(Uri uri) {
             sendNotification();
-            Log.d(TAG, "onTaskComplited: FILE URI " + uri);
+            Log.d(TAG, "onTaskCompleted: FILE URI " + uri);
             new PreferencesManager(getApplicationContext()).putDownloadedImageUri(uri);
             EventBus.getDefault().post(new EventImageReciered());
         }
@@ -172,7 +172,7 @@ public class ServerService extends Service {
                 byte[] decodedArr = DecoderEncoderUtils.decodeByteArray(mByteBuffer.array(), key);
                 Uri uri = saveBitmapToCache(decodedArr);
                 if (mTaskCompliteListenerRef != null) {
-                    mTaskCompliteListenerRef.get().onTaskComplited(uri);
+                    mTaskCompliteListenerRef.get().onTaskCompleted(uri);
                 }
             } catch (Exception ex) {
                 Log.e(TAG, "BufferWorker: ", ex);

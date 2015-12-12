@@ -14,7 +14,7 @@ import com.garrytrue.workwithwebsocket.a.events.EventConnectionOpen;
 import com.garrytrue.workwithwebsocket.a.events.EventHaveProblem;
 import com.garrytrue.workwithwebsocket.a.events.EventImageReciered;
 import com.garrytrue.workwithwebsocket.a.events.EventImageSaved;
-import com.garrytrue.workwithwebsocket.a.events.EventImageSended;
+import com.garrytrue.workwithwebsocket.a.events.EventImageSent;
 import com.garrytrue.workwithwebsocket.a.utils.Utils;
 import com.squareup.picasso.Picasso;
 
@@ -69,7 +69,7 @@ public class BaseClientServerFragment extends Fragment {
         hideImageProgress();
         onReciveImageEvent(event);
     }
-    public void onEventMainThread(EventImageSended event) {
+    public void onEventMainThread(EventImageSent event) {
         onSendedImageEvent();
     }
     public void onEventMainThread(EventImageSaved event) {

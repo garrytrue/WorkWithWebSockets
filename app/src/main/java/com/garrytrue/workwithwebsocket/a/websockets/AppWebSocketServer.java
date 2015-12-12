@@ -42,7 +42,7 @@ public class AppWebSocketServer extends WebSocketServer {
         Log.d(TAG, "onMessage() called with: " + "conn = [" + conn + "], message = [" + message + "]");
         if (mCallback != null) {
             Log.d(TAG, "onMessage: GOT_FUCK_MSG");
-            mCallback.get().onMessageRecieve(message);
+            mCallback.get().onMessageReceived(message);
         }
     }
 
@@ -53,7 +53,7 @@ public class AppWebSocketServer extends WebSocketServer {
         Log.d(TAG, "onMessage: SERVER Buffer Lenght " + data.array().length);
         if (mCallback != null) {
             Log.d(TAG, "onMessage: GOT_FUCK_MSG");
-            mCallback.get().onMessageRecieve(data);
+            mCallback.get().onMessageReceived(data);
         }
     }
 

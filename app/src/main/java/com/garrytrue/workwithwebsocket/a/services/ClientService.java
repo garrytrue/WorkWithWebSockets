@@ -13,7 +13,7 @@ import com.garrytrue.workwithwebsocket.a.events.EventConnectionClosed;
 import com.garrytrue.workwithwebsocket.a.events.EventConnectionError;
 import com.garrytrue.workwithwebsocket.a.events.EventConnectionOpen;
 import com.garrytrue.workwithwebsocket.a.events.EventHaveProblem;
-import com.garrytrue.workwithwebsocket.a.events.EventImageSended;
+import com.garrytrue.workwithwebsocket.a.events.EventImageSent;
 import com.garrytrue.workwithwebsocket.a.interfaces.WebSocketCallback;
 import com.garrytrue.workwithwebsocket.a.utils.BitmapFileUtils;
 import com.garrytrue.workwithwebsocket.a.utils.Constants;
@@ -43,7 +43,7 @@ public class ClientService extends Service {
 
     private WebSocketCallback mCallback = new WebSocketCallback() {
         @Override
-        public void onMessageRecieve(ByteBuffer buffer) {
+        public void onMessageReceived(ByteBuffer buffer) {
             throw new UnsupportedOperationException("Not used");
         }
 
@@ -65,7 +65,7 @@ public class ClientService extends Service {
         }
 
         @Override
-        public void onMessageRecieve(String msg) {
+        public void onMessageReceived(String msg) {
             throw new UnsupportedOperationException("Not used");
         }
     };
@@ -91,7 +91,7 @@ public class ClientService extends Service {
             } catch (IOException ex) {
                 EventBus.getDefault().post(new EventHaveProblem(getString(R.string.err_could_not_read_image)));
             }
-            EventBus.getDefault().post(new EventImageSended());
+            EventBus.getDefault().post(new EventImageSent());
             stopSelf();
         }
 
@@ -151,7 +151,6 @@ public class ClientService extends Service {
     }
 
     public void onDestroy() {
-        super.onDestroy();
         Log.d(TAG, "onDestroy: ");
         BitmapFileUtils.deleteCachedFiles(this);
         if (mSocketClient != null && mSocketClient.isSocketOpen())
