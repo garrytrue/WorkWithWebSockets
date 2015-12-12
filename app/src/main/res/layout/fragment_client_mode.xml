@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                xmlns:tools="http://schemas.android.com/tools">
 
     <ImageView
-        android:layout_width="250dp"
-        android:layout_height="250dp"
+        android:layout_width="@dimen/app_image_view_dim"
+        android:layout_height="@dimen/app_image_view_dim"
         android:id="@+id/imageView"
         android:layout_below="@+id/tvServerAdr"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="@dimen/content_space"
         android:contentDescription="@null"
         android:scaleType="centerCrop"
         android:adjustViewBounds="true"/>
@@ -19,9 +20,10 @@
         android:layout_height="wrap_content"
         android:text="@string/select_img"
         android:id="@+id/btn_select_image"
-        android:layout_marginTop="15dp"
+        android:layout_marginTop="@dimen/content_space"
         android:layout_below="@+id/imageView"
-        android:layout_alignStart="@+id/imageView"/>
+        android:layout_alignStart="@+id/imageView"
+        android:contentDescription="@string/select_img"/>
 
     <Button
         android:layout_width="wrap_content"
@@ -29,7 +31,8 @@
         android:text="@string/send_img"
         android:id="@+id/btn_send_image"
         android:layout_alignBaseline="@+id/btn_select_image"
-        android:layout_alignEnd="@+id/imageView"/>
+        android:layout_alignEnd="@+id/imageView"
+        android:contentDescription="@string/save_img"/>
 
     <ProgressBar
         android:layout_width="wrap_content"
@@ -44,9 +47,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Medium Text"
+        tools:text="Medium Text"
         android:id="@+id/tvServerAdr"
-        android:layout_marginTop="8dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"/>
 

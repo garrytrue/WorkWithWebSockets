@@ -10,8 +10,18 @@
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+        <item name="android:textViewStyle">@style/AppTheme.TextView</item>
+        <item name="android:editTextStyle">@style/AppTheme.EditText</item>
     </style>
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
+
+    <style name="AppTheme.TextView" parent="android:Widget.TextView">
+        <item name="android:textSize">@dimen/app_text_size</item>
+    </style>
+    <style name="AppTheme.EditText" parent="android:Widget.EditText">
+        <item name="android:width">@dimen/app_edit_text_width</item>
+        <item name="android:textSize">@dimen/app_text_size</item>
+    </style>
 
 </resources>
