@@ -39,8 +39,8 @@ public class AddToGalleryTask extends AsyncTask<Uri, Void, Void> {
         }
         if (!isCancelled()) {
             InputStream inputStream = null;
+            FileOutputStream fileOutputStream = null;
             final Context localContext = mContextRef.get();
-            final FileOutputStream fileOutputStream;
             if (localContext != null && imageFile != null) {
                 try {
                     inputStream = localContext.getContentResolver().openInputStream(params[0]);
@@ -51,13 +51,8 @@ public class AddToGalleryTask extends AsyncTask<Uri, Void, Void> {
                 } catch (IOException ex) {
                     Log.e(TAG, "doInBackground: ", ex);
                 } finally {
-                    if (inputStream != null) {
-                        try {
-                            inputStream.close();
-                        } catch (IOException e) {
-                            Log.e(TAG, "doInBackground: ", e);
-                        }
-                    }
+                    BitmapFileUtils.closeStream(inputStream);
+                    BitmapFileUtils.closeStream(fileOutputStream);
                 }
                 Log.d(TAG, "doInBackground: " + imageFile.getPath());
                 final String imageUri = BitmapFileUtils.PATH_PREFIX + imageFile.getPath();

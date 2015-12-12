@@ -21,9 +21,10 @@ import com.squareup.picasso.Picasso;
 import de.greenrobot.event.EventBus;
 
 public class BaseClientServerFragment extends Fragment {
+    private static final String TAG = BaseClientServerFragment.class.getSimpleName();
+
     protected ProgressBar mImageProgress;
     protected ImageView mImageView;
-    private static final String TAG = BaseClientServerFragment.class.getSimpleName();
 
 
     @Override
@@ -63,7 +64,7 @@ public class BaseClientServerFragment extends Fragment {
 
     public void onEventMainThread(EventImageReceived event) {
         hideImageProgress();
-        onReceiveImageEvent(event);
+        onReceivedImageEvent(event);
     }
 
     public void onEventMainThread(EventImageSent event) {
@@ -83,6 +84,8 @@ public class BaseClientServerFragment extends Fragment {
 
     protected void onSentImageEvent() {
     }
+    protected void onReceivedImageEvent(EventImageReceived ev) {
+    }
 
 
     protected void showImageProgress() {
@@ -99,8 +102,5 @@ public class BaseClientServerFragment extends Fragment {
             Picasso.with(getActivity()).invalidate(uri);
         }
         Picasso.with(getActivity()).load(uri).placeholder(R.mipmap.empty_src).into(mImageView);
-    }
-
-    protected void onReceiveImageEvent(EventImageReceived ev) {
     }
 }

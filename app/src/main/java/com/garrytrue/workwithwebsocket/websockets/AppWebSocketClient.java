@@ -11,7 +11,8 @@ import java.lang.ref.WeakReference;
 import java.net.URI;
 
 public class AppWebSocketClient extends WebSocketClient {
-    private static final String TAG = "AppWebSocketClient";
+    private static final String TAG = AppWebSocketClient.class.getSimpleName();
+
     private WeakReference<WebSocketCallback> mCallback;
 
     public AppWebSocketClient(URI serverURI, WebSocketCallback callback) {

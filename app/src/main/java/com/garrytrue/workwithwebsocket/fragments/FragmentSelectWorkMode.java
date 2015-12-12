@@ -28,7 +28,7 @@ public class FragmentSelectWorkMode extends Fragment {
     private static final String TAG = FragmentSelectWorkMode.class.getSimpleName();
 
     private EditText mServerAddress;
-    private PreferencesManager preferencesManager;
+    private PreferencesManager mPreferencesManager;
     private IBtnClickListener mClickListener;
 
 
@@ -73,7 +73,7 @@ public class FragmentSelectWorkMode extends Fragment {
 
     @Override
     public void onViewCreated(View v, Bundle savedInstanceState) {
-        preferencesManager = new PreferencesManager(getActivity());
+        mPreferencesManager = new PreferencesManager(getActivity());
         initUI(v);
         showLastInput();
     }
@@ -92,7 +92,7 @@ public class FragmentSelectWorkMode extends Fragment {
         String address = mServerAddress.getText().toString();
         if (Utils.isAddressValid(address)) {
             Log.d(TAG, "validateInput: Valid input");
-            preferencesManager.putServerAddress(address);
+            mPreferencesManager.putServerAddress(address);
             return true;
         } else {
             Log.d(TAG, "validateInput: Invalid input");
@@ -102,7 +102,7 @@ public class FragmentSelectWorkMode extends Fragment {
     }
 
     private void showLastInput() {
-        mServerAddress.setText(preferencesManager.getServerAddress());
+        mServerAddress.setText(mPreferencesManager.getServerAddress());
     }
 
     private String wifiIpAddress() {

@@ -3,7 +3,7 @@ package com.garrytrue.workwithwebsocket.utils;
 
 public class Constants {
     private Constants() {
-        new AssertionError();
+        throw new AssertionError();
     }
 
     public static final String WEB_SOCKET_PREFIX = "ws://";

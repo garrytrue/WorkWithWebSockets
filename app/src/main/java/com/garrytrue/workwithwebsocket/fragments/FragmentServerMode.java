@@ -22,9 +22,10 @@ import com.garrytrue.workwithwebsocket.utils.Constants;
 
 
 public class FragmentServerMode extends BaseClientServerFragment {
+    private static final String TAG = FragmentServerMode.class.getSimpleName();
+    
     private Button mBtnSaveImage;
     protected Uri mImageUri;
-    private static final String TAG = "FragmentServerMode";
 
     public static FragmentServerMode newInstance() {
         Bundle args = new Bundle();
@@ -93,15 +94,15 @@ public class FragmentServerMode extends BaseClientServerFragment {
 
     }
 
-    protected void onReceiveImageEvent(EventImageReceived ev) {
+    protected void onReceivedImageEvent(EventImageReceived ev) {
         mImageUri = new PreferencesManager(getActivity()).getDownLoadedImageUri();
-        Log.d(TAG, "onReceiveImageEvent: " + mImageUri);
+        Log.d(TAG, "onReceivedImageEvent: " + mImageUri);
         loadImageFromUri(mImageUri);
         mBtnSaveImage.setVisibility(View.VISIBLE);
     }
     protected void onImageSavedEvent() {
         mImageUri = new PreferencesManager(getActivity()).getDownLoadedImageUri();
-        Log.d(TAG, "onReceiveImageEvent: " + mImageUri);
+        Log.d(TAG, "onImageSavedEvent: " + mImageUri);
         loadImageFromUri(mImageUri);
         mBtnSaveImage.setVisibility(View.GONE);
     }

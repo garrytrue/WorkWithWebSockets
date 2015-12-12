@@ -13,43 +13,5 @@
     tools:showIn="@layout/activity_main"
     tools:context=".MainActivity"
     android:id="@+id/fragment_container">
-    <!--<EditText-->
-        <!--android:layout_width="200dp"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:id="@+id/et_server_address"-->
-        <!--android:layout_alignParentTop="true"-->
-        <!--android:layout_centerHorizontal="true"/>-->
 
-
-    <!--<Button-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:text="Connect to socket"-->
-        <!--android:id="@+id/btn_conn_server"-->
-        <!--android:layout_below="@+id/et_server_address"-->
-        <!--android:layout_marginTop="60dp"-->
-        <!--android:layout_alignParentStart="true"/>-->
-    <!--<Button-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:text="Close Connection"-->
-        <!--android:id="@+id/btn_disconn"-->
-        <!--android:layout_alignBaseline="@+id/btn_conn_server"-->
-        <!--android:layout_alignParentEnd="true"/>-->
-
-    <!--<ProgressBar-->
-        <!--style="?android:attr/progressBarStyleLarge"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:id="@+id/progressBar"-->
-        <!--android:layout_below="@+id/btn_disconn"-->
-        <!--android:layout_centerHorizontal="true"-->
-        <!--android:layout_marginEnd="38dp"-->
-        <!--android:visibility="gone"/>-->
-    <!--<TextView-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:id="@+id/tvLabel"-->
-        <!--android:layout_below="@+id/progressBar"-->
-       <!--/>-->
 </RelativeLayout>

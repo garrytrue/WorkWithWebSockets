@@ -38,6 +38,7 @@ import static com.garrytrue.workwithwebsocket.utils.Constants.WEB_SOCKET_PREFIX;
 
 public class ClientService extends Service {
     private static final String TAG = ClientService.class.getSimpleName();
+
     private Uri mImageUri;
     private AppWebSocketClient mSocketClient;
 
@@ -51,7 +52,7 @@ public class ClientService extends Service {
         public void onOpenConnection() {
             Log.d(TAG, "onOpenConnection: Connection is OPEN");
             EventBus.getDefault().post(new EventConnectionOpen());
-            messageSender.run();
+           new Thread(mMessageSender).start();
         }
 
         @Override
@@ -69,7 +70,7 @@ public class ClientService extends Service {
             throw new UnsupportedOperationException("Not used");
         }
     };
-    private Runnable messageSender = new Runnable() {
+    private Runnable mMessageSender = new Runnable() {
         @Override
         public void run() {
             try {
@@ -128,7 +129,6 @@ public class ClientService extends Service {
                 stopSelf();
             }
         }
-
         return START_NOT_STICKY;
     }
 

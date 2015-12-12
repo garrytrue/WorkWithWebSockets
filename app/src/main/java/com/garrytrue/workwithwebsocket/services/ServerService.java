@@ -36,7 +36,9 @@ import de.greenrobot.event.EventBus;
 
 
 public class ServerService extends Service {
-    private static final String TAG = "ServerService";
+
+    private static final String TAG = ServerService.class.getSimpleName();
+
     private BufferWorker mBufferWorker = new BufferWorker();
     private AppWebSocketServer mWebSocketServer;
 
@@ -45,8 +47,8 @@ public class ServerService extends Service {
         public void onMessageReceived(ByteBuffer buffer) {
             Log.d(TAG, "onMessageReceived: Got ByteBuffer");
             mBufferWorker.setByteBuffer(buffer);
-            mBufferWorker.setTaskCompliteListener(mTaskCompliteListener);
-            mBufferWorker.run();
+            mBufferWorker.setTaskCompleteListener(mTaskCompliteListener);
+            new Thread(mBufferWorker).start();
         }
 
         @Override
@@ -116,9 +118,7 @@ public class ServerService extends Service {
         if (mWebSocketServer != null)
             try {
                 mWebSocketServer.stop();
-            } catch (IOException e) {
-                Log.e(TAG, "onDestroy: ", e);
-            } catch (InterruptedException e) {
+            } catch (IOException | InterruptedException e) {
                 Log.e(TAG, "onDestroy: ", e);
             }
         super.onDestroy();
@@ -134,7 +134,7 @@ public class ServerService extends Service {
             mByteBuffer = buffer;
         }
 
-        public void setTaskCompliteListener(OnTaskCompleteListener listener) {
+        public void setTaskCompleteListener(OnTaskCompleteListener listener) {
             mTaskCompliteListenerRef = new WeakReference<>(listener);
         }
 
@@ -174,7 +174,6 @@ public class ServerService extends Service {
                 }
             } catch (Exception ex) {
                 Log.e(TAG, "BufferWorker: ", ex);
-                // TODO: 13.11.15 Notify User about problem with decode image
                 EventBus.getDefault().post(new EventHaveProblem(getString(R.string.err_could_not_decode_image)));
             }
         }

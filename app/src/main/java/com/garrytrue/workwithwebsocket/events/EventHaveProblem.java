@@ -1,13 +1,12 @@
 package com.garrytrue.workwithwebsocket.events;
 
 public class EventHaveProblem {
-    String message;
-
+    String mMessage;
 
     public EventHaveProblem(String message) {
-        this.message = message;
+        mMessage = message;
     }
     public String getMessage() {
-        return message;
+        return mMessage;
     }
 }

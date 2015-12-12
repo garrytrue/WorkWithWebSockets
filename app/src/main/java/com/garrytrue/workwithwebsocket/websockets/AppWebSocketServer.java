@@ -13,7 +13,8 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 
 public class AppWebSocketServer extends WebSocketServer {
-    private static final String TAG = "AppWebSocketServer";
+    private static final String TAG = AppWebSocketServer.class.getSimpleName();
+
     private final  WeakReference<WebSocketCallback> mCallback;
 
     public AppWebSocketServer(InetSocketAddress address, WebSocketCallback callback) {

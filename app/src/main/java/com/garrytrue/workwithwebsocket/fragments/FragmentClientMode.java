@@ -28,6 +28,7 @@ import static com.garrytrue.workwithwebsocket.utils.Constants.*;
 public class FragmentClientMode extends BaseClientServerFragment {
     private static final int SELECT_IMAGE_FROM_GALLERY = 9;
     private static final String TAG = FragmentClientMode.class.getSimpleName();
+
     private Uri mImageUri;
 
     private View.OnClickListener mSelectImageClickListener = new View.OnClickListener() {
