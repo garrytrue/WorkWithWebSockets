@@ -14,7 +14,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.garrytrue.workwithwebsocket.R;
-import com.garrytrue.workwithwebsocket.events.EventImageReceived;
 import com.garrytrue.workwithwebsocket.preference.PreferencesManager;
 import com.garrytrue.workwithwebsocket.services.ServerService;
 import com.garrytrue.workwithwebsocket.tasks.AddToGalleryTask;
@@ -23,9 +22,9 @@ import com.garrytrue.workwithwebsocket.utils.Constants;
 
 public class FragmentServerMode extends BaseClientServerFragment {
     private static final String TAG = FragmentServerMode.class.getSimpleName();
-    
+
     private Button mBtnSaveImage;
-    protected Uri mImageUri;
+    private Uri mImageUri;
 
     public static FragmentServerMode newInstance() {
         Bundle args = new Bundle();
@@ -34,14 +33,14 @@ public class FragmentServerMode extends BaseClientServerFragment {
         return fragment;
     }
 
-    View.OnClickListener mBtnSaveClickListener = new View.OnClickListener() {
+    private final View.OnClickListener mBtnSaveClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             if (mImageUri != null)
                 new AddToGalleryTask(getActivity()).execute(mImageUri);
         }
     };
-    View.OnClickListener mBtnStopServiceClickListener = new View.OnClickListener() {
+    private final View.OnClickListener mBtnStopServiceClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             Intent stopIntent = new Intent(getActivity(), ServerService.class);
@@ -75,7 +74,7 @@ public class FragmentServerMode extends BaseClientServerFragment {
     }
 
 
-    protected void initUI(View v) {
+    private void initUI(View v) {
         mImageView = (ImageView) v.findViewById(R.id.imageView);
         mBtnSaveImage = (Button) v.findViewById(R.id.btn_save_image);
         mBtnSaveImage.setOnClickListener(mBtnSaveClickListener);
@@ -88,18 +87,19 @@ public class FragmentServerMode extends BaseClientServerFragment {
         loadImageFromUri(mImageUri);
         if (mImageUri == null) {
             showImageProgress();
-        }else{
+        } else {
             mBtnSaveImage.setVisibility(View.VISIBLE);
         }
 
     }
 
-    protected void onReceivedImageEvent(EventImageReceived ev) {
+    protected void onReceivedImageEvent() {
         mImageUri = new PreferencesManager(getActivity()).getDownLoadedImageUri();
         Log.d(TAG, "onReceivedImageEvent: " + mImageUri);
         loadImageFromUri(mImageUri);
         mBtnSaveImage.setVisibility(View.VISIBLE);
     }
+
     protected void onImageSavedEvent() {
         mImageUri = new PreferencesManager(getActivity()).getDownLoadedImageUri();
         Log.d(TAG, "onImageSavedEvent: " + mImageUri);

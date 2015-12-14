@@ -13,7 +13,7 @@ import java.net.URI;
 public class AppWebSocketClient extends WebSocketClient {
     private static final String TAG = AppWebSocketClient.class.getSimpleName();
 
-    private WeakReference<WebSocketCallback> mCallback;
+    private final WeakReference<WebSocketCallback> mCallback;
 
     public AppWebSocketClient(URI serverURI, WebSocketCallback callback) {
         super(serverURI);

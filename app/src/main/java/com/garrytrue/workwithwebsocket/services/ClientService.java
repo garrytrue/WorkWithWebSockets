@@ -42,7 +42,7 @@ public class ClientService extends Service {
     private Uri mImageUri;
     private AppWebSocketClient mSocketClient;
 
-    private WebSocketCallback mCallback = new WebSocketCallback() {
+    private final  WebSocketCallback mCallback = new WebSocketCallback() {
         @Override
         public void onMessageReceived(ByteBuffer buffer) {
             throw new UnsupportedOperationException("Not used");
@@ -70,7 +70,7 @@ public class ClientService extends Service {
             throw new UnsupportedOperationException("Not used");
         }
     };
-    private Runnable mMessageSender = new Runnable() {
+    private final Runnable mMessageSender = new Runnable() {
         @Override
         public void run() {
             try {
@@ -102,6 +102,7 @@ public class ClientService extends Service {
             int bufferSize = 1024;
             byte[] buffer = new byte[bufferSize];
             int len;
+            if(inputStream != null)
             while ((len = inputStream.read(buffer)) != -1) {
                 byteBuffer.write(buffer, 0, len);
             }

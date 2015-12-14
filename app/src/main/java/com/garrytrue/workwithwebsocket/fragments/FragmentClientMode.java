@@ -31,7 +31,7 @@ public class FragmentClientMode extends BaseClientServerFragment {
 
     private Uri mImageUri;
 
-    private View.OnClickListener mSelectImageClickListener = new View.OnClickListener() {
+    private final View.OnClickListener mSelectImageClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             mImageView.setImageResource(R.mipmap.empty_src);
@@ -40,7 +40,7 @@ public class FragmentClientMode extends BaseClientServerFragment {
 
         }
     };
-    private View.OnClickListener mSendImageClickListener = new View.OnClickListener() {
+    private  final View.OnClickListener mSendImageClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             Intent request = new Intent(getActivity(), ClientService.class);
@@ -59,7 +59,7 @@ public class FragmentClientMode extends BaseClientServerFragment {
         }
     };
 
-    private OnTaskCompleteListener mOnTaskCompleteListener = new OnTaskCompleteListener() {
+    private final  OnTaskCompleteListener mOnTaskCompleteListener = new OnTaskCompleteListener() {
         @Override
         public void onTaskCompleted(Uri uri) {
             Log.d(TAG, "onTaskCompleted: URI " + uri);
@@ -99,7 +99,7 @@ public class FragmentClientMode extends BaseClientServerFragment {
     }
 
 
-    protected void initUI(View v) {
+    private void initUI(View v) {
         mImageView = (ImageView) v.findViewById(R.id.imageView);
         Button btnSelectImage = (Button) v.findViewById(R.id.btn_select_image);
         btnSelectImage.setOnClickListener(mSelectImageClickListener);

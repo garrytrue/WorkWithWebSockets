@@ -37,11 +37,10 @@ public class AddToGalleryTask extends AsyncTask<Uri, Void, Void> {
             cancel(true);
             return null;
         }
-        if (!isCancelled()) {
-            InputStream inputStream = null;
+             InputStream inputStream = null;
             FileOutputStream fileOutputStream = null;
             final Context localContext = mContextRef.get();
-            if (localContext != null && imageFile != null) {
+            if (localContext != null) {
                 try {
                     inputStream = localContext.getContentResolver().openInputStream(params[0]);
                     fileOutputStream = new FileOutputStream(imageFile);
@@ -61,7 +60,6 @@ public class AddToGalleryTask extends AsyncTask<Uri, Void, Void> {
                 new PreferencesManager(localContext).putDownloadedImageUri(Uri.parse(imageUri));
                 EventBus.getDefault().post(new EventImageSaved());
             }
-        }
         return null;
     }
 

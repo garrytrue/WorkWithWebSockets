@@ -39,15 +39,15 @@ public class ServerService extends Service {
 
     private static final String TAG = ServerService.class.getSimpleName();
 
-    private BufferWorker mBufferWorker = new BufferWorker();
+    private final BufferWorker mBufferWorker = new BufferWorker();
     private AppWebSocketServer mWebSocketServer;
 
-    private WebSocketCallback mServerCallback = new WebSocketCallback() {
+    private final WebSocketCallback mServerCallback = new WebSocketCallback() {
         @Override
         public void onMessageReceived(ByteBuffer buffer) {
             Log.d(TAG, "onMessageReceived: Got ByteBuffer");
             mBufferWorker.setByteBuffer(buffer);
-            mBufferWorker.setTaskCompleteListener(mTaskCompliteListener);
+            mBufferWorker.setTaskCompleteListener(mTaskCompleteListener);
             new Thread(mBufferWorker).start();
         }
 
@@ -74,7 +74,7 @@ public class ServerService extends Service {
 
         }
     };
-    private OnTaskCompleteListener mTaskCompliteListener = new OnTaskCompleteListener() {
+    private final OnTaskCompleteListener mTaskCompleteListener = new OnTaskCompleteListener() {
         @Override
         public void onTaskCompleted(Uri uri) {
             sendNotification();
@@ -102,7 +102,7 @@ public class ServerService extends Service {
         String[] arr = address.split(":");
         Log.d(TAG, "getSocketAddress: " + arr[0] + arr[1]);
         Integer port = Integer.parseInt(arr[1]);
-        Log.d(TAG, "INETSOCKETADDRESS: " + new InetSocketAddress(arr[0], port).toString());
+        Log.d(TAG, "INET_SOCKET_ADDRESS: " + new InetSocketAddress(arr[0], port).toString());
         return new InetSocketAddress(arr[0], port);
     }
 
@@ -127,7 +127,7 @@ public class ServerService extends Service {
 
     private class BufferWorker implements Runnable {
         private ByteBuffer mByteBuffer;
-        private WeakReference<OnTaskCompleteListener> mTaskCompliteListenerRef;
+        private WeakReference<OnTaskCompleteListener> mTaskCompleteListenerRef;
         private String mStrKey;
 
         public void setByteBuffer(ByteBuffer buffer) {
@@ -135,7 +135,7 @@ public class ServerService extends Service {
         }
 
         public void setTaskCompleteListener(OnTaskCompleteListener listener) {
-            mTaskCompliteListenerRef = new WeakReference<>(listener);
+            mTaskCompleteListenerRef = new WeakReference<>(listener);
         }
 
         public void setKey(String key) {
@@ -145,6 +145,7 @@ public class ServerService extends Service {
         public BufferWorker() {
         }
 
+        @SuppressWarnings("ResultOfMethodCallIgnored")
         private Uri saveBitmapToCache(byte[] byteArr) {
             File file = new File(getApplicationContext().getCacheDir(),
                     BitmapFileUtils.TEMP_DOWNLOADED_FILE_NAME);
@@ -169,8 +170,8 @@ public class ServerService extends Service {
                 SecretKey key = DecoderEncoderUtils.keyFromString(mStrKey);
                 byte[] decodedArr = DecoderEncoderUtils.decodeByteArray(mByteBuffer.array(), key);
                 Uri uri = saveBitmapToCache(decodedArr);
-                if (mTaskCompliteListenerRef != null) {
-                    mTaskCompliteListenerRef.get().onTaskCompleted(uri);
+                if (mTaskCompleteListenerRef != null) {
+                    mTaskCompleteListenerRef.get().onTaskCompleted(uri);
                 }
             } catch (Exception ex) {
                 Log.e(TAG, "BufferWorker: ", ex);

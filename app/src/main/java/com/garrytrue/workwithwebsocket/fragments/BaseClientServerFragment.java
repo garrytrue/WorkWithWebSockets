@@ -50,31 +50,33 @@ public class BaseClientServerFragment extends Fragment {
         EventBus.getDefault().unregister(this);
     }
 
+    @SuppressWarnings({"UnusedParameters", "unused"})
     public void onEventMainThread(EventConnectionOpen event) {
         Utils.showToast(getActivity(), getString(R.string.msg_connection_is_open));
     }
-
+    @SuppressWarnings({"UnusedParameters", "unused"})
     public void onEventMainThread(EventConnectionClosed event) {
         Utils.showToast(getActivity(), event.getReason());
     }
-
+    @SuppressWarnings({"UnusedParameters", "unused"})
     public void onEventMainThread(EventConnectionError event) {
         Utils.showToast(getActivity(), event.getMessage());
     }
-
+    @SuppressWarnings({"UnusedParameters", "unused"})
     public void onEventMainThread(EventImageReceived event) {
         hideImageProgress();
-        onReceivedImageEvent(event);
+        onReceivedImageEvent();
     }
 
+    @SuppressWarnings({"UnusedParameters", "unused"})
     public void onEventMainThread(EventImageSent event) {
         onSentImageEvent();
     }
-
+    @SuppressWarnings({"UnusedParameters", "unused"})
     public void onEventMainThread(EventImageSaved event) {
         onImageSavedEvent();
     }
-
+    @SuppressWarnings({"UnusedParameters", "unused"})
     public void onEventMainThread(EventHaveProblem event) {
         Utils.showToast(getActivity(), event.getMessage());
     }
@@ -84,7 +86,7 @@ public class BaseClientServerFragment extends Fragment {
 
     protected void onSentImageEvent() {
     }
-    protected void onReceivedImageEvent(EventImageReceived ev) {
+    protected void onReceivedImageEvent() {
     }
 
 

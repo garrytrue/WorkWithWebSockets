@@ -36,7 +36,7 @@ public class FragmentSelectWorkMode extends Fragment {
         return new FragmentSelectWorkMode();
     }
 
-    private View.OnClickListener mRunClientModeClickListener = new View.OnClickListener() {
+    private final  View.OnClickListener mRunClientModeClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             if (validateInput()) {
@@ -46,7 +46,7 @@ public class FragmentSelectWorkMode extends Fragment {
 
         }
     };
-    private View.OnClickListener mRunServerModeClickListener = new View.OnClickListener() {
+    private  final View.OnClickListener mRunServerModeClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             if (validateInput()) {
@@ -56,6 +56,7 @@ public class FragmentSelectWorkMode extends Fragment {
         }
     };
 
+    @SuppressWarnings("deprecation")
     @Override
     public void onAttach(Activity activity) {
         if (activity instanceof IBtnClickListener) {
@@ -109,7 +110,7 @@ public class FragmentSelectWorkMode extends Fragment {
         int ipAddress = ((WifiManager) getActivity().getSystemService(Activity
                 .WIFI_SERVICE)).getConnectionInfo().getIpAddress();
 
-        // Convert little-endian to big-endianif needed
+        // Convert little-endian to big-endian if needed
         if (ByteOrder.nativeOrder().equals(ByteOrder.LITTLE_ENDIAN)) {
             ipAddress = Integer.reverseBytes(ipAddress);
         }

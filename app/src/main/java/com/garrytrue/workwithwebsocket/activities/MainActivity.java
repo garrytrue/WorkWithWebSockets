@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity implements IBtnClickListener
         mContainer = (RelativeLayout) findViewById(R.id.fragment_container);
     }
 
-    public int getFragmentContainerId() {
+    private int getFragmentContainerId() {
         return mContainer.getId();
     }
 
@@ -65,6 +65,7 @@ public class MainActivity extends AppCompatActivity implements IBtnClickListener
             case R.id.btn_start_server:
                 showModeFragment(FragmentServerMode.newInstance(), TAG_FRAGMENT_SERVER_MODE);
                 startServerService();
+                break;
         }
     }
 

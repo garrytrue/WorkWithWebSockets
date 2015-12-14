@@ -1,7 +1,7 @@
 package com.garrytrue.workwithwebsocket.events;
 
 public class EventHaveProblem {
-    String mMessage;
+    private final String mMessage;
 
     public EventHaveProblem(String message) {
         mMessage = message;

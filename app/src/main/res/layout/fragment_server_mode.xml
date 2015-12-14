@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
     <ImageView
         android:id="@+id/imageView"
-        android:layout_width="250dp"
-        android:layout_height="250dp"
+        android:layout_width="@dimen/app_image_view_dim"
+        android:layout_height="@dimen/app_image_view_dim"
         android:layout_below="@+id/tvServerAdr"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="8dp"
         android:adjustViewBounds="true"
         android:contentDescription="@null"
         android:scaleType="centerCrop"/>
@@ -19,27 +19,25 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/imageView"
         android:layout_centerHorizontal="true"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        style="?android:attr/buttonBarStyle">
 
         <Button
             android:id="@+id/btn_stop_service"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignEnd="@+id/tvServerAdr"
-            android:layout_below="@+id/imageView"
             android:text="@string/stop_service"
             android:visibility="visible"
-            android:layout_margin="5dp"/>
+            style="?android:attr/borderlessButtonStyle"/>
 
         <Button
             android:id="@+id/btn_save_image"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignEnd="@+id/tvServerAdr"
-            android:layout_below="@+id/imageView"
+            android:layout_margin="@dimen/content_space"
             android:text="@string/save_img"
             android:visibility="gone"
-            android:layout_margin="5dp"/>
+            style="?android:attr/borderlessButtonStyle"/>
     </LinearLayout>
 
     <ProgressBar
@@ -48,7 +46,7 @@
         android:layout_height="wrap_content"
         android:layout_alignTop="@+id/imageView"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="74dp"
+        android:layout_marginTop="@dimen/top_margin_progress_bar"
         android:visibility="gone"/>
 
     <TextView
@@ -57,9 +55,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="8dp"
-        android:text="Medium Text"
-        android:textAppearance="?android:attr/textAppearanceMedium"/>
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        tools:text="Medium Text"/>
 
 
 </RelativeLayout>

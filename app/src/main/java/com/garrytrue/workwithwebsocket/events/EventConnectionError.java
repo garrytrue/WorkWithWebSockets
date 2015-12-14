@@ -2,7 +2,7 @@ package com.garrytrue.workwithwebsocket.events;
 
 
 public class EventConnectionError {
-    private String mMessage;
+    private final String mMessage;
     public EventConnectionError(String message) {
         mMessage = message;
     }

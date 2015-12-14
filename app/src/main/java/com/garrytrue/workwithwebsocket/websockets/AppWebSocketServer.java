@@ -48,7 +48,7 @@ public class AppWebSocketServer extends WebSocketServer {
     public void onMessage(WebSocket conn, ByteBuffer data) {
         Log.d(TAG, "onMessage() SERVER called with: " + "conn = [" + conn + "], message = [" +
                 data + "]");
-        Log.d(TAG, "onMessage: SERVER Buffer Lenght " + data.array().length);
+        Log.d(TAG, "onMessage: SERVER Buffer Length " + data.array().length);
         if (mCallback.get() != null) {
             Log.d(TAG, "onMessage: GOT_MSG");
             mCallback.get().onMessageReceived(data);

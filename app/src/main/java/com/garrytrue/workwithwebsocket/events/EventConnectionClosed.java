@@ -1,7 +1,7 @@
 package com.garrytrue.workwithwebsocket.events;
 
 public class EventConnectionClosed {
-    private String mReason;
+    private final String mReason;
 
     public EventConnectionClosed(String reason) {
         mReason = reason;

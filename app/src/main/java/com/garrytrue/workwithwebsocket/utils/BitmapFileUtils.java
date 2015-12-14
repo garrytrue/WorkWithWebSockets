@@ -3,6 +3,7 @@ package com.garrytrue.workwithwebsocket.utils;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Environment;
+import android.util.Log;
 
 import java.io.Closeable;
 import java.io.File;
@@ -13,16 +14,15 @@ import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-/**
- * Created by TorbaIgor (garrytrue@yandex.ru) on 10.11.15.
- */
+
 public class BitmapFileUtils {
+    private static final String TAG = BitmapFileUtils.class.getSimpleName();
     private static final int BUFFER_SIZE = 1024;
     private static final String FILE_SUFFIX = ".jpg";
+    private static final String DOWNLOADED_BMP_FILE_NAME = "file_downloaded_";
     public static final int IMAGE_MAX_SIZE = 1024;
     public static final String PATH_PREFIX = "file:";
     public static final String TEMP_BMP_FILE_NAME = "temp_cropped_file" + FILE_SUFFIX;
-    public static final String DOWNLOADED_BMP_FILE_NAME = "file_downloaded_";
     public static final String TEMP_DOWNLOADED_FILE_NAME = "temp_downloaded_file" + FILE_SUFFIX;
 
 
@@ -30,7 +30,7 @@ public class BitmapFileUtils {
         throw new AssertionError();
     }
 
-    public static String generateBmpFileName() {
+    private static String generateBmpFileName() {
         return new StringBuilder().append(DOWNLOADED_BMP_FILE_NAME)
                 .append(new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date())).toString();
     }
@@ -61,10 +61,9 @@ public class BitmapFileUtils {
     }
 
     public static File createImageFile() throws IOException{
-        File image = File.createTempFile(generateBmpFileName(), FILE_SUFFIX, Environment
-                    .getExternalStoragePublicDirectory(
-                            Environment.DIRECTORY_PICTURES));
-        return image;
+        return File.createTempFile(generateBmpFileName(), FILE_SUFFIX,
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES));
+
     }
 
     public static void copyStream(InputStream input, OutputStream output)
@@ -75,6 +74,7 @@ public class BitmapFileUtils {
             output.write(buffer, 0, bytesRead);
         }
     }
+      @SuppressWarnings("ResultOfMethodCallIgnored")
       public static void deleteCachedFiles(Context c) {
         File[] fileList = c.getCacheDir().listFiles();
         for (File f : fileList) {
@@ -86,7 +86,9 @@ public class BitmapFileUtils {
             if (stream != null){
                 stream.close();
             }
-        }catch (IOException ex){}
+        }catch (IOException ex){
+            Log.e(TAG, "closeStream: ", ex);
+        }
 
     }
 

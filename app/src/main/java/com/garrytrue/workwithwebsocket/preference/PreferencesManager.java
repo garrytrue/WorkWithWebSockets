@@ -1,5 +1,6 @@
 package com.garrytrue.workwithwebsocket.preference;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -12,6 +13,7 @@ public class PreferencesManager {
     private final SharedPreferences mCustomPreferences;
     private final SharedPreferences.Editor mSettingsEditor;
 
+    @SuppressLint("CommitPrefEdits")
     public PreferencesManager(Context context) {
         mCustomPreferences = android.preference.PreferenceManager
                 .getDefaultSharedPreferences(context.getApplicationContext());

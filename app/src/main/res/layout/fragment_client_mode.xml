@@ -1,56 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                xmlns:tools="http://schemas.android.com/tools">
+                android:layout_height="match_parent">
 
     <ImageView
+        android:id="@+id/imageView"
         android:layout_width="@dimen/app_image_view_dim"
         android:layout_height="@dimen/app_image_view_dim"
-        android:id="@+id/imageView"
         android:layout_below="@+id/tvServerAdr"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="@dimen/content_space"
+        android:adjustViewBounds="true"
         android:contentDescription="@null"
-        android:scaleType="centerCrop"
-        android:adjustViewBounds="true"/>
+        android:scaleType="centerCrop"/>
 
     <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/select_img"
         android:id="@+id/btn_select_image"
-        android:layout_marginTop="@dimen/content_space"
-        android:layout_below="@+id/imageView"
-        android:layout_alignStart="@+id/imageView"
-        android:contentDescription="@string/select_img"/>
-
-    <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/send_img"
+        android:layout_alignStart="@+id/imageView"
+        android:layout_below="@+id/imageView"
+        android:layout_marginTop="@dimen/content_space"
+        android:contentDescription="@string/select_img"
+        android:text="@string/select_img"
+        style="?android:attr/borderlessButtonStyle"/>
+
+    <Button
         android:id="@+id/btn_send_image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_alignBaseline="@+id/btn_select_image"
         android:layout_alignEnd="@+id/imageView"
-        android:contentDescription="@string/save_img"/>
+        android:contentDescription="@string/save_img"
+        android:text="@string/send_img"
+        style="?android:attr/borderlessButtonStyle"/>
 
     <ProgressBar
+        android:id="@+id/pb_image_progress"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/pb_image_progress"
         android:layout_alignTop="@+id/imageView"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="74dp"
+        android:layout_marginTop="@dimen/top_margin_progress_bar"
         android:visibility="gone"/>
 
     <TextView
+        android:id="@+id/tvServerAdr"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        tools:text="Medium Text"
-        android:id="@+id/tvServerAdr"
         android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"/>
-
-
+        android:layout_centerHorizontal="true"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        tools:text="Medium Text"/>
 </RelativeLayout>

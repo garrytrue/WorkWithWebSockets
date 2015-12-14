@@ -8,11 +8,9 @@ import android.widget.Toast;
 
 import java.util.regex.Pattern;
 
-/**
- * Created by TorbaIgor (garrytrue@yandex.ru) on 11.11.15.
- */
 public class Utils {
-    public static final String IP_REGEXP = "(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}):(\\d{1,5})";
+    private static final String IP_REGEXP = "(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}):(\\d{1," +
+            "5})";
 
     private Utils() {
         throw new AssertionError();
